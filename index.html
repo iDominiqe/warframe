@@ -1,69 +1,334 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warframe Cycles Tracker</title>
-  <link rel="stylesheet" href="styles.css?v=1.0">
-  <script defer src="locales.js"></script>
-  <script defer src="app.js?v=1.0"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>Warframe Cycles — Timers</title>
+  <style>
+    :root{
+      --bg:#0b0f13; --card:#0f151a; --muted:#9aa6bb; --accent:#00aaff; --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.04);
+      --radius:16px; --shadow: 0 8px 30px rgba(2,6,23,0.6);
+      color-scheme: dark;
+    }
+    [data-theme="light"]{ --bg:#f6f8fb; --card:#ffffff; --muted:#4b5563; --accent:#0066cc; --glass: rgba(2,6,23,0.03); color-scheme: light }
+
+    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#05060a);color:var(--primary,#e6eef9)}
+    header{backdrop-filter: blur(8px);position:sticky;top:0;z-index:40;padding:12px 20px;display:flex;align-items:center;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7df);box-shadow:var(--shadow);display:grid;place-items:center;font-weight:700}
+    nav{margin-left:auto;display:flex;gap:8px;align-items:center}
+    nav button, nav select{background:transparent;border:0;padding:8px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+    main{padding:36px;max-width:1200px;margin:0 auto}
+
+    .hero{display:grid;grid-template-columns: 1fr 420px;gap:24px;align-items:start}
+    @media(max-width:900px){.hero{grid-template-columns:1fr} .right{order:-1}}
+
+    .panel{background:linear-gradient(180deg,var(--card), rgba(255,255,255,0.02));border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);backdrop-filter: blur(6px)}
+    .title{font-size:20px;margin:0 0 6px 0}
+    .muted{color:var(--muted);font-size:13px}
+
+    .cycles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
+    @media(max-width:700px){.cycles{grid-template-columns:1fr}}
+
+    .cycle-card{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(2,6,23,0.02));box-shadow: 0 6px 18px rgba(2,6,23,0.45)}
+    .orbit-canvas{width:86px;height:86px;flex:0 0 86px;border-radius:10px;display:grid;place-items:center}
+    .cycle-info h3{margin:0;font-size:16px}
+    .time{font-weight:700;font-size:18px}
+    .ends{font-size:12px;color:var(--muted)}
+
+    /* Parallax background shapes */
+    .parallax{position:fixed;inset:0;pointer-events:none;z-index:0}
+    .parallax .shape{position:absolute;border-radius:50%;filter:blur(40px);opacity:.09}
+    .shape.s1{width:380px;height:380px;left:6%;top:8%;background:linear-gradient(90deg,#00aaff,#7fdbff)}
+    .shape.s2{width:260px;height:260px;right:6%;bottom:10%;background:linear-gradient(90deg,#8a6cff,#ff7bff)}
+
+    footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+
+    /* small responsive tweaks */
+    .small{font-size:13px}
+
+    /* toggle switches */
+    .switch{display:flex;align-items:center;gap:8px}
+    .lang{display:flex;gap:6px}
+
+    /* smooth animations */
+    .fadein{animation:fadeIn .9s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* baro page */
+    .tab-content{margin-top:14px}
+
+  </style>
 </head>
-<body>
-  <header>
+<body data-theme="dark">
+  <div class="parallax" aria-hidden>
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+  </div>
+
+  <header class="panel">
+    <div class="brand"><div class="logo">WF</div><div>
+      <div style="font-weight:700">Warframe Cycles</div>
+      <div class="muted small">Real-time timers • GitHub Pages friendly</div>
+    </div></div>
+
     <nav>
-      <div class="logo">🌗 Warframe Cycles</div>
-      <div class="menu">
-        <a href="#home">Home</a>
-        <a href="#baro">Baro Ki'Teer</a>
-        <a href="#events">Events</a>
-        <a href="#alerts">Alerts</a>
-        <a href="#streams">Devstreams</a>
-        <a href="#status">Status</a>
-        <a href="#wiki">Wiki</a>
-        <select id="langSwitcher">
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
+      <div class="lang">
+        <button id="lang-en">EN</button>
+        <button id="lang-ru">RU</button>
+      </div>
+      <div class="switch">
+        <button id="themeToggle">Theme</button>
+        <select id="platformSelect" title="Platform">
+          <option value="pc">PC</option>
+          <option value="ps4">PlayStation</option>
+          <option value="xb1">Xbox</option>
+          <option value="swi">Switch</option>
         </select>
-        <button id="themeToggle">🌙/☀️</button>
       </div>
     </nav>
   </header>
 
   <main>
-    <section id="home" class="section">
-      <h1>Open World Cycles</h1>
-      <div id="star-map" class="star-map"></div>
-    </section>
+    <section class="hero">
+      <div>
+        <div class="panel fadein">
+          <h2 class="title">Live cycle dashboard</h2>
+          <div class="muted">Shows Cetus, Orb Vallis, Cambion Drift and other open cycles. Time updates locally in real time and syncs with server periodically.</div>
 
-    <section id="baro" class="section">
-      <h1>Baro Ki'Teer</h1>
-      <div id="baro-info">Loading...</div>
-    </section>
+          <div class="cycles" id="cycles"></div>
 
-    <section id="events" class="section">
-      <h1>Events</h1>
-      <div id="events-list">Loading...</div>
-    </section>
+        </div>
 
-    <section id="alerts" class="section">
-      <h1>Alerts</h1>
-      <div id="alerts-list">Loading...</div>
-    </section>
+        <div class="panel fadein" style="margin-top:14px">
+          <h3 class="title">Baro Ki'Teer (Void Trader)</h3>
+          <div id="baro" class="tab-content muted">Loading...</div>
+        </div>
+      </div>
 
-    <section id="streams" class="section">
-      <h1>Devstreams & News</h1>
-      <div id="streams-list">Loading...</div>
-    </section>
-
-    <section id="status" class="section">
-      <h1>Warframe Status</h1>
-      <canvas id="statusChart"></canvas>
-    </section>
-
-    <section id="wiki" class="section">
-      <h1>Warframe Wiki</h1>
-      <p>Here will be added custom wiki pages...</p>
+      <aside class="right panel fadein">
+        <h3 class="title">3D-style orbit preview</h3>
+        <div class="muted">A smooth orbital animation (CSS + Canvas) shows approximate rotation speed relative to cycle progress.</div>
+        <canvas id="mainOrbit" width="380" height="380" style="width:100%;border-radius:12px;margin-top:12px"></canvas>
+        <div style="margin-top:12px" class="muted small">Sync interval: <span id="syncInterval">30s</span>. Last sync: <span id="lastSync">—</span></div>
+      </aside>
     </section>
   </main>
+
+  <footer>Made for GitHub Pages • No caching • Responsive • Switch language & theme</footer>
+
+  <script>
+    // -------------------- Configuration --------------------
+    const ENDPOINT_BASE = 'https://api.warframestat.us'; // community API (WFCD)
+    let platform = localStorage.getItem('wf_platform') || 'pc';
+    const SYNC_MS = 30000; // 30 seconds sync with server (change to 60000 if you prefer 1 minute)
+    const CYCLE_KEYS = ['cetusCycle','earthCycle','vallisCycle','cambionCycle'];
+    // 'earthCycle' may refer to Earth Day/Night (Cetus uses different name). We'll try endpoints and skip missing ones.
+
+    // -------------------- UI helpers --------------------
+    const $ = id=>document.getElementById(id);
+    const cyclesEl = document.getElementById('cycles');
+    const lastSyncEl = document.getElementById('lastSync');
+    const syncIntervalEl = document.getElementById('syncInterval'); syncIntervalEl.textContent = (SYNC_MS/1000)+'s';
+
+    document.getElementById('platformSelect').value = platform;
+    document.getElementById('platformSelect').addEventListener('change', e=>{ platform=e.target.value; localStorage.setItem('wf_platform',platform); fetchAll(true); });
+
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      const root=document.body; root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    });
+    document.getElementById('lang-en').addEventListener('click', ()=>setLang('en'));
+    document.getElementById('lang-ru').addEventListener('click', ()=>setLang('ru'));
+
+    let LANG = localStorage.getItem('wf_lang') || 'en';
+    function setLang(l){ LANG=l; localStorage.setItem('wf_lang',l); applyLang(); }
+    function applyLang(){ document.documentElement.lang = LANG; /* Add more i18n if needed */ }
+    applyLang();
+
+    // -------------------- Data store --------------------
+    const cycles = {}; // key -> {expiry: Date, state, name}
+
+    // -------------------- Fetching --------------------
+    async function fetchEndpoint(key){
+      const url = `${ENDPOINT_BASE}/${platform}/${key}`;
+      try{
+        const res = await fetch(url, {cache: 'no-store'});
+        if(!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        return data;
+      }catch(err){
+        // endpoint may not exist on this api/platform
+        return null;
+      }
+    }
+
+    async function fetchAll(force=false){
+      const now = new Date();
+      lastSyncEl.textContent = now.toLocaleTimeString();
+      for(const key of CYCLE_KEYS){
+        const data = await fetchEndpoint(key);
+        if(data){
+          // many endpoints return {expiry, state, id..}
+          const expiry = data.expiry || data.EndTime || data.expire || data.Expiry;
+          let expiryDate = expiry ? new Date(expiry) : null;
+          // some endpoints give timeLeft in seconds
+          if(!expiryDate && data.timeLeft){ expiryDate = new Date(Date.now() + (data.timeLeft*1000)); }
+          cycles[key] = {raw:data, expiry:expiryDate, state: data.state || data.status || data.active || null, name: niceName(key)};
+        }else{
+          delete cycles[key];
+        }
+      }
+      // fetch baro (voidTrader)
+      fetchBaro();
+      renderCards();
+    }
+
+    async function fetchBaro(){
+      try{
+        const res = await fetch(`${ENDPOINT_BASE}/${platform}/voidTrader`, {cache:'no-store'});
+        if(!res.ok) throw $('baro').textContent = 'No data';
+        const data = await res.json();
+        if(data && data.active){
+          const start = new Date(data.startString || data.start || data.expiry ? data.start : null);
+          const end = new Date(data.endString || data.end || data.expiry || data.endString);
+          $('baro').innerHTML = `<div><strong>${data.user}</strong> — Arrives: ${new Date(data.start).toLocaleString()}<br>Leaves: ${new Date(data.end).toLocaleString()}</div>`;
+        }else{
+          $('baro').textContent = 'Baro is not present';
+        }
+      }catch(e){ $('baro').textContent = 'Baro: unable to fetch'; }
+    }
+
+    function niceName(k){
+      return ({cetusCycle:'Cetus (Plains)', vallisCycle:'Orb Vallis', cambionCycle:'Cambion Drift', earthCycle:'Earth / Cetus?'}[k] || k);
+    }
+
+    // -------------------- Rendering --------------------
+    function renderCards(){
+      cyclesEl.innerHTML='';
+      for(const [key,obj] of Object.entries(cycles)){
+        const id = 'c-'+key;
+        const card = document.createElement('div'); card.className='cycle-card fadein';
+        card.innerHTML = `
+          <div class="orbit-canvas"><canvas id="${id}" width="86" height="86"></canvas></div>
+          <div class="cycle-info">
+            <h3>${obj.name}</h3>
+            <div class="time" id="time-${key}">--:--:--</div>
+            <div class="ends muted" id="ends-${key}">Ends: —</div>
+          </div>`;
+        cyclesEl.appendChild(card);
+        setupMiniOrbit(id, obj);
+      }
+    }
+
+    // mini orbit draws based on percentage of cycle elapsed
+    function setupMiniOrbit(canvasId, obj){
+      const cn = document.getElementById(canvasId);
+      if(!cn) return;
+      const ctx = cn.getContext('2d');
+      function draw(){
+        ctx.clearRect(0,0,cn.width,cn.height);
+        // background glass
+        ctx.fillStyle = 'rgba(255,255,255,0.02)';
+        ctx.beginPath(); ctx.roundRect?.(4,4,78,78,8); ctx.fill?.();
+        const now = Date.now();
+        let frac = 0;
+        if(obj.expiry){
+          const period = Math.max(60*1000, (obj.raw.timeLeft? obj.raw.timeLeft*1000 : (obj.expiry - now)) );
+          const total = (obj.raw.cycleLength || period);
+          const remaining = Math.max(0, obj.expiry - now);
+          frac = 1 - (remaining / period);
+        }
+        // draw orbit
+        const cx = cn.width/2, cy = cn.height/2;
+        const R = 22;
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+        // planet position
+        const angle = frac * Math.PI*2;
+        const px = cx + Math.cos(angle)*R;
+        const py = cy + Math.sin(angle)*R;
+        ctx.beginPath(); ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.arc(px,py,6,0,Math.PI*2); ctx.fill();
+
+      }
+      draw();
+      // also update text times
+      function tick(){
+        const el = document.getElementById('time-'+canvasId.replace('c-',''));
+        const endsEl = document.getElementById('ends-'+canvasId.replace('c-',''));
+        const now = Date.now();
+        if(obj.expiry){
+          const diff = Math.max(0, obj.expiry - now);
+          el.textContent = formatHMS(diff);
+          endsEl.textContent = 'Ends: '+ new Date(obj.expiry).toLocaleString();
+        } else { el.textContent='—'; endsEl.textContent='No data'; }
+        draw();
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function formatHMS(ms){
+      const s = Math.floor(ms/1000);
+      const hh = Math.floor(s/3600); const mm = Math.floor((s%3600)/60); const ss = s%60;
+      return String(hh).padStart(2,'0')+":"+String(mm).padStart(2,'0')+":"+String(ss).padStart(2,'0');
+    }
+
+    // -------------------- Main big canvas orbit (visual) --------------------
+    const mainCanvas = document.getElementById('mainOrbit');
+    const mctx = mainCanvas.getContext('2d');
+    function mainLoop(){
+      const w = mainCanvas.width = mainCanvas.clientWidth*devicePixelRatio;
+      const h = mainCanvas.height = mainCanvas.clientHeight*devicePixelRatio;
+      mctx.clearRect(0,0,w,h);
+      const cx = w/2, cy = h/2;
+      // draw sun
+      mctx.beginPath(); mctx.fillStyle='rgba(255,200,80,0.95)'; mctx.arc(cx,cy,32*devicePixelRatio,0,Math.PI*2); mctx.fill();
+      // draw planets based on available cycles
+      const keys = Object.keys(cycles);
+      keys.forEach((k,i)=>{
+        const r = 70 + i*36;
+        const obj = cycles[k];
+        let frac = 0.0;
+        if(obj && obj.expiry){
+          const period = Math.max(60*1000,(obj.raw.timeLeft? obj.raw.timeLeft*1000 : Math.max(1,obj.expiry - Date.now())));
+          const remaining = Math.max(0,obj.expiry - Date.now());
+          frac = 1 - (remaining / period);
+        }
+        const angle = frac * Math.PI*2 + (Date.now()/8000)*(0.5/(i+1));
+        const px = cx + Math.cos(angle)*r; const py = cy + Math.sin(angle)*r;
+        // orbit line
+        mctx.beginPath(); mctx.strokeStyle='rgba(255,255,255,0.05)'; mctx.lineWidth=1; mctx.arc(cx,cy,r,0,Math.PI*2); mctx.stroke();
+        // planet
+        mctx.beginPath(); mctx.fillStyle='rgba(180,220,255,0.95)'; mctx.arc(px,py,10,0,Math.PI*2); mctx.fill();
+      });
+      requestAnimationFrame(mainLoop);
+    }
+    requestAnimationFrame(mainLoop);
+
+    // -------------------- Sync timer --------------------
+    let syncTimer = null;
+    async function startSync(){ await fetchAll(true); if(syncTimer) clearInterval(syncTimer); syncTimer = setInterval(fetchAll, SYNC_MS); }
+    startSync();
+
+    // -------------------- Misc helpers --------------------
+    // Add roundRect polyfill for canvas if not available
+    CanvasRenderingContext2D.prototype.roundRect = CanvasRenderingContext2D.prototype.roundRect || function(x,y,w,h,r){
+      if(typeof r==='undefined') r=6;
+      this.beginPath(); this.moveTo(x+r,y); this.arcTo(x+w,y,x+w,y+h,r); this.arcTo(x+w,y+h,x,y+h,r); this.arcTo(x,y+h,x,y,r); this.arcTo(x,y,x+w,y,r); this.closePath(); return this;
+    }
+
+    // prevent aggressive caching when deployed on GH pages - add headers in GH settings if possible
+    // Note: GitHub Pages may still cache resources; using cache:'no-store' on fetch and meta no-store reduces browser caching.
+
+    // Accessibility keyboard shortcuts
+    window.addEventListener('keydown', e=>{ if(e.key==='t') document.getElementById('themeToggle').click(); if(e.key==='l') setLang(LANG==='en'?'ru':'en'); });
+
+    // initial small delay to let UI render
+    setTimeout(()=>{ startSync(); }, 300);
+  </script>
 </body>
 </html>
