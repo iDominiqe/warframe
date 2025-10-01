@@ -1,0 +1,28 @@
+```css
+:root{--bg:#0b0f13;--card:#0f151a;--muted:#9aa6bb;--accent:#00aaff;--accent2:#7f6cff;--radius:12px;--shadow:0 10px 36px rgba(2,6,23,0.6)}
+[data-theme="light"]{--bg:#f6f8fb;--card:#ffffff;--muted:#475063;--accent:#0066cc;--accent2:#8a6cff}
+*{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#05060a);color:#e6eef9}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 18px;position:sticky;top:0;z-index:60;background:rgba(0,0,0,0.2);backdrop-filter:blur(6px)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:700}
+nav{margin-left:auto;display:flex;gap:8px;align-items:center}
+nav a, nav button, nav select{background:transparent;border:0;padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer;text-decoration:none}
+main{padding:24px}
+.container{display:flex;gap:18px;align-items:flex-start}
+.left{flex:1}
+.right{width:420px}
+.panel{background:linear-gradient(180deg,var(--card),rgba(255,255,255,0.02));border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.muted{color:var(--muted);font-size:13px}
+.small{font-size:13px}
+.cycles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+@media(max-width:980px){.container{flex-direction:column}.right{order:-1;width:auto}.cycles{grid-template-columns:1fr}}
+.cycle-card{position:relative;display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03)}
+.orbit-canvas{width:86px;height:86px;flex:0 0 86px;border-radius:10px;display:grid;place-items:center}
+.tooltip{position:absolute;left:12px;right:12px;bottom:12px;padding:10px;border-radius:10px;background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(255,255,255,0.02));backdrop-filter:blur(6px);transform:translateY(14px);opacity:0;transition:all .28s}
+.cycle-card:hover .tooltip{opacity:1;transform:none}
+#mainOrbit{width:100%;height:420px;border-radius:12px;background:linear-gradient(180deg,rgba(2,6,23,0.6),rgba(7,10,15,0.9));display:block}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+footer{text-align:center;padding:18px;color:var(--muted)}
+```
