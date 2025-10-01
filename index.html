@@ -1,72 +1,144 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warframe Cycles Tracker</title>
-  <link rel="stylesheet" href="styles.css?v=2.0">
-  <script defer src="locales.js"></script>
-  <script defer src="app.js?v=2.0"></script>
-</head>
-<body>
-  <!-- Анимированный фон -->
-  <canvas id="space-bg"></canvas>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Warframe Cycles — Timers & Worldstate</title>
 
-  <header>
-    <nav>
-      <div class="logo">🌌 Warframe Cycles</div>
-      <div class="menu">
-        <a href="#home">Home</a>
-        <a href="#baro">Baro Ki'Teer</a>
-        <a href="#events">Events</a>
-        <a href="#alerts">Alerts</a>
-        <a href="#streams">Devstreams</a>
-        <a href="#status">Status</a>
-        <a href="#wiki">Wiki</a>
-        <select id="langSwitcher">
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
+  <!-- Prevent aggressive caching -->
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Chart.js CDN for status charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Load locales first, app.js after -->
+  <script defer src="locales.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-theme="dark">
+  <!-- Parallax / background shapes (decorative) -->
+  <div class="parallax" aria-hidden>
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+    <div id="bg-canvas-container"><canvas id="bgCanvas"></canvas></div>
+  </div>
+
+  <!-- Header -->
+  <header class="panel topbar">
+    <div class="brand">
+      <div class="logo">WF</div>
+      <div>
+        <div class="brand-title">Warframe Cycles</div>
+        <div class="muted small">Live timers • Star map • Worldstate</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#/" class="nav-link">Home</a>
+      <a href="#/events" class="nav-link">Events</a>
+      <a href="#/devstreams" class="nav-link">Devstreams</a>
+      <a href="#/status" class="nav-link">Status</a>
+      <a href="#/wiki" class="nav-link">Wiki</a>
+      <a href="#/baro" class="nav-link">Baro</a>
+
+      <div class="controls">
+        <select id="platformSelect" title="Platform">
+          <option value="pc">PC</option>
+          <option value="ps4">PlayStation</option>
+          <option value="xb1">Xbox</option>
+          <option value="swi">Switch</option>
         </select>
-        <button id="themeToggle">🌙/☀️</button>
+
+        <button id="themeToggle" class="btn small">Theme</button>
+        <div class="lang">
+          <button id="lang-en" class="btn small">EN</button>
+          <button id="lang-ru" class="btn small">RU</button>
+        </div>
       </div>
     </nav>
   </header>
 
   <main>
-    <section id="home" class="section">
-      <h1>Open World Cycles</h1>
-      <div id="star-map" class="star-map"></div>
+    <!-- Home / Dashboard -->
+    <section id="page-home" class="page active">
+      <div class="grid-2 container">
+        <div>
+          <div class="panel">
+            <h2 class="title">Live cycle dashboard</h2>
+            <div class="muted">Shows Cetus, Orb Vallis, Cambion Drift, Duviri, Zariman and more. Hover cards to see details & environmental effects.</div>
+
+            <div id="cycles" class="cycles"></div>
+          </div>
+
+          <div class="panel" style="margin-top:12px">
+            <h3 class="title">Baro Ki'Teer (Void Trader)</h3>
+            <div id="baro" class="muted">Loading...</div>
+          </div>
+        </div>
+
+        <aside class="right panel">
+          <h3 class="title">Star map & orbits</h3>
+          <div class="muted">Planets show colors and simple environmental effects (night, fog, cold). Hover a planet to see cycle time.</div>
+          <canvas id="mainOrbit" class="main-orbit"></canvas>
+          <div style="margin-top:12px" class="muted small">Sync interval: <span id="syncInterval">30s</span>. Last sync: <span id="lastSync">—</span></div>
+        </aside>
+      </div>
     </section>
 
-    <section id="baro" class="section">
-      <h1>Baro Ki'Teer</h1>
-      <div id="baro-info" class="card">Loading...</div>
+    <!-- Events -->
+    <section id="page-events" class="page">
+      <div class="panel">
+        <h2 class="title">Events & Alerts</h2>
+        <div id="eventsList" class="muted">Loading events and alerts...</div>
+      </div>
     </section>
 
-    <section id="events" class="section">
-      <h1>Events</h1>
-      <div id="events-list" class="card">Loading...</div>
+    <!-- Devstreams -->
+    <section id="page-devstreams" class="page">
+      <div class="panel">
+        <h2 class="title">Devstreams & News</h2>
+        <div id="devstreamList" class="muted">Fetching devstreams and news...</div>
+      </div>
     </section>
 
-    <section id="alerts" class="section">
-      <h1>Alerts</h1>
-      <div id="alerts-list" class="card">Loading...</div>
+    <!-- Status -->
+    <section id="page-status" class="page">
+      <div class="panel">
+        <h2 class="title">Warframe Server Status</h2>
+        <div class="muted">Live-ish server load and player graphs.</div>
+        <div class="grid-2" style="margin-top:12px">
+          <div class="panel small"><div class="small muted">Players (approx)</div><canvas id="playersChart" width="400" height="160"></canvas></div>
+          <div class="panel small"><div class="small muted">Server load</div><canvas id="loadChart" width="400" height="160"></canvas></div>
+        </div>
+      </div>
     </section>
 
-    <section id="streams" class="section">
-      <h1>Devstreams & News</h1>
-      <div id="streams-list" class="card">Loading...</div>
+    <!-- Wiki -->
+    <section id="page-wiki" class="page">
+      <div class="panel">
+        <h2 class="title">Wiki (placeholder)</h2>
+        <div class="muted">This area will host wiki pages you add later.</div>
+        <div style="margin-top:12px"><button id="createWikiBtn" class="btn">Create wiki entry</button></div>
+        <div id="wikiList" style="margin-top:12px"></div>
+      </div>
     </section>
 
-    <section id="status" class="section">
-      <h1>Warframe Status</h1>
-      <canvas id="statusChart"></canvas>
-    </section>
-
-    <section id="wiki" class="section">
-      <h1>Warframe Wiki</h1>
-      <p class="card">Here will be added custom wiki pages...</p>
+    <!-- Baro page -->
+    <section id="page-baro" class="page">
+      <div class="panel">
+        <h2 class="title">Baro Ki'Teer Report</h2>
+        <div id="baroDetailed" class="muted">Loading baro data...</div>
+      </div>
     </section>
   </main>
+
+  <footer class="panel footer">Made for GitHub Pages • No caching • Responsive • EN/RU • 24-hour time</footer>
+
+  <!-- App script (single file) -->
+  <script src="app.js"></script>
 </body>
 </html>
