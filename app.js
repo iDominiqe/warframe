@@ -1,3 +1,14 @@
+async function safeFetch(url) {
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch (e) {
+    console.error('safeFetch failed for', url, e);
+    return null;
+  }
+}
+
 const expiryDate = expiry ? new Date(expiry) : (data.timeLeft? new Date(Date.now()+data.timeLeft*1000): null);
 cycles[c.key] = {raw:data, expiry: expiryDate, name: c.name, color: c.color, effect: c.effect};
 } else delete cycles[c.key]; }
