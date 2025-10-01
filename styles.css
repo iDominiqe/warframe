@@ -87,6 +87,17 @@ body, html {
   font-size: 1rem;
 }
 
+/* Baro alert */
+.baro-alert {
+  margin: 20px;
+  padding: 15px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 15px rgba(255,255,255,0.2);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
 /* Responsive */
 @media screen and (max-width: 768px) {
   .location-grid {
