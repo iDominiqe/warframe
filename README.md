@@ -1,24 +1,15 @@
-```markdown
-# Warframe Cycles — GitHub Pages
+# 🌗 Warframe Cycles Tracker
 
+Website that shows real-time Warframe cycles, Baro Ki'Teer arrivals, events, alerts, devstreams and status.
 
-Static site that shows Warframe worldstate cycles and other info.
+## Features
+- Open World cycles (Cetus, Fortuna, Cambion Drift, Duviri, Zariman)
+- Baro Ki'Teer timer
+- Events & alerts
+- Warframe status
+- Multilingual (EN/RU)
+- Dark/Light theme
+- Responsive design
 
-
-## Files
-- `index.html` — main page
-- `styles.css` — styles
-- `app.js` — logic and API calls
-- `.github/workflows/deploy.yml` — (optional) GitHub Actions deploy workflow
-
-
-## Usage
-1. Create a new GitHub repo.
-2. Add files from this project.
-3. Enable GitHub Pages in repo settings, or use the included workflow to deploy to `gh-pages` branch.
-
-
-## Notes
-- The site uses `https://hub.warframestat.us` with fallback to `https://api.warframestat.us`.
-- Sync interval is 30 seconds. All times shown in 24-hour format.
-```
+## Deploy
+This repo uses GitHub Actions to auto-deploy to GitHub Pages.
