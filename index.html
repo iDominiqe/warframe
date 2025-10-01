@@ -4,14 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Warframe Cycles Tracker</title>
-  <link rel="stylesheet" href="styles.css?v=1.0">
+  <link rel="stylesheet" href="styles.css?v=2.0">
   <script defer src="locales.js"></script>
-  <script defer src="app.js?v=1.0"></script>
+  <script defer src="app.js?v=2.0"></script>
 </head>
 <body>
+  <!-- Анимированный фон -->
+  <canvas id="space-bg"></canvas>
+
   <header>
     <nav>
-      <div class="logo">🌗 Warframe Cycles</div>
+      <div class="logo">🌌 Warframe Cycles</div>
       <div class="menu">
         <a href="#home">Home</a>
         <a href="#baro">Baro Ki'Teer</a>
@@ -37,22 +40,22 @@
 
     <section id="baro" class="section">
       <h1>Baro Ki'Teer</h1>
-      <div id="baro-info">Loading...</div>
+      <div id="baro-info" class="card">Loading...</div>
     </section>
 
     <section id="events" class="section">
       <h1>Events</h1>
-      <div id="events-list">Loading...</div>
+      <div id="events-list" class="card">Loading...</div>
     </section>
 
     <section id="alerts" class="section">
       <h1>Alerts</h1>
-      <div id="alerts-list">Loading...</div>
+      <div id="alerts-list" class="card">Loading...</div>
     </section>
 
     <section id="streams" class="section">
       <h1>Devstreams & News</h1>
-      <div id="streams-list">Loading...</div>
+      <div id="streams-list" class="card">Loading...</div>
     </section>
 
     <section id="status" class="section">
@@ -62,7 +65,7 @@
 
     <section id="wiki" class="section">
       <h1>Warframe Wiki</h1>
-      <p>Here will be added custom wiki pages...</p>
+      <p class="card">Here will be added custom wiki pages...</p>
     </section>
   </main>
 </body>
