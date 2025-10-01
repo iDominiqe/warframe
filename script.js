@@ -49,11 +49,9 @@ function ThemeToggle({theme,setTheme}) {
 // --- Location Card ---
 function LocationCard({location,data}) {
   const time = new Date(data.expiry*1000).toLocaleTimeString("en-GB",{hour12:false});
-  const cold = location.includes("Drift") || location.includes("Duviri");
-  return React.createElement('div',{className:"location-card "+(cold?"cold":"")},
+  return React.createElement('div',{className:"location-card"},
     React.createElement('h3',{},location),
-    React.createElement('p',{},`Time: ${time}`),
-    React.createElement(ParticlesBg,{type:"cobweb",bg:true})
+    React.createElement('p',{},`Time: ${time}`)
   );
 }
 
