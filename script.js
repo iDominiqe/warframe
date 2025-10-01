@@ -8,7 +8,7 @@ const resources = {
 };
 i18next.init({ lng: localStorage.getItem("lang") || "en", resources });
 
-// --- API URL ---
+// --- API ---
 const API_BASE = "https://hub.warframestat.us/";
 
 async function fetchCycles() {
@@ -89,7 +89,7 @@ function BaroAlert() {
   );
 }
 
-// --- Server Status (Recharts) ---
+// --- Server Status ---
 function ServerStatusPage() {
   const [data,setData] = useState([{name:"Servers",load:0,players:0}]);
   useEffect(()=>{ fetchStatus().then(s=>{
@@ -132,3 +132,27 @@ function App(){
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+
+// --- Canvas background (stars, moon, fog) ---
+const canvas = document.createElement("canvas");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+document.getElementById("canvas-bg").appendChild(canvas);
+const ctx = canvas.getContext("2d");
+
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<100;i++){
+    ctx.fillStyle = "rgba(255,255,255,"+Math.random()+")";
+    ctx.beginPath();
+    ctx.arc(Math.random()*canvas.width,Math.random()*canvas.height,Math.random()*2,0,Math.PI*2);
+    ctx.fill();
+  }
+  // Moon
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
+  ctx.beginPath();
+  ctx.arc(canvas.width-100,100,50,0,Math.PI*2);
+  ctx.fill();
+}
+setInterval(drawStars,1000/30);
+window.addEventListener("resize",()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
