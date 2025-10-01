@@ -1,57 +1,69 @@
-<!doctype html>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warframe Cycles Tracker</title>
+  <link rel="stylesheet" href="styles.css?v=1.0">
+  <script defer src="locales.js"></script>
+  <script defer src="app.js?v=1.0"></script>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">🌗 Warframe Cycles</div>
+      <div class="menu">
+        <a href="#home">Home</a>
+        <a href="#baro">Baro Ki'Teer</a>
+        <a href="#events">Events</a>
+        <a href="#alerts">Alerts</a>
+        <a href="#streams">Devstreams</a>
+        <a href="#status">Status</a>
+        <a href="#wiki">Wiki</a>
+        <select id="langSwitcher">
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+        </select>
+        <button id="themeToggle">🌙/☀️</button>
+      </div>
+    </nav>
+  </header>
 
+  <main>
+    <section id="home" class="section">
+      <h1>Open World Cycles</h1>
+      <div id="star-map" class="star-map"></div>
+    </section>
 
-<div class="panel" style="margin-top:12px">
-<h3>Baro Ki'Teer (Void Trader)</h3>
-<div id="baro" class="muted">Loading...</div>
-</div>
-</div>
+    <section id="baro" class="section">
+      <h1>Baro Ki'Teer</h1>
+      <div id="baro-info">Loading...</div>
+    </section>
 
+    <section id="events" class="section">
+      <h1>Events</h1>
+      <div id="events-list">Loading...</div>
+    </section>
 
-<aside class="right panel">
-<h3>Star map & orbits</h3>
-<p class="muted">Hover a planet to see cycle time and details. Environmental hints shown (night/fog/cold).</p>
-<canvas id="mainOrbit"></canvas>
-<div class="muted small">Sync interval: <span id="syncInterval">30s</span>. Last sync: <span id="lastSync">—</span></div>
-</aside>
-</div>
-</section>
+    <section id="alerts" class="section">
+      <h1>Alerts</h1>
+      <div id="alerts-list">Loading...</div>
+    </section>
 
+    <section id="streams" class="section">
+      <h1>Devstreams & News</h1>
+      <div id="streams-list">Loading...</div>
+    </section>
 
-<section id="page-events" class="page">
-<div class="panel"><h2>Events & Alerts</h2><div id="eventsList" class="muted">Loading events and alerts...</div></div>
-</section>
+    <section id="status" class="section">
+      <h1>Warframe Status</h1>
+      <canvas id="statusChart"></canvas>
+    </section>
 
-
-<section id="page-devstreams" class="page">
-<div class="panel"><h2>Devstreams & News</h2><div id="devstreamList" class="muted">Fetching devstreams and news...</div></div>
-</section>
-
-
-<section id="page-status" class="page">
-<div class="panel">
-<h2>Warframe Server Status</h2>
-<p class="muted">Live-ish server load and population charts (Chart.js used).</p>
-<div class="grid-2">
-<div class="panel small"><div class="muted">Players online (approx)</div><canvas id="playersChart" width="400" height="160"></canvas></div>
-<div class="panel small"><div class="muted">Server load</div><canvas id="loadChart" width="400" height="160"></canvas></div>
-</div>
-</div>
-</section>
-
-
-<section id="page-wiki" class="page">
-<div class="panel"><h2>Wiki (placeholder)</h2><p class="muted">This area will host manually added wiki pages.</p><button id="createWikiBtn">Create new wiki page</button><div id="wikiList"></div></div>
-</section>
-</main>
-
-
-<footer>Made for GitHub Pages • No caching • Responsive • EN/RU • 24-hour time</footer>
-
-
-<!-- Chart.js CDN for charts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="app.js?v=<%= new Date().getTime() %>"></script>
+    <section id="wiki" class="section">
+      <h1>Warframe Wiki</h1>
+      <p>Here will be added custom wiki pages...</p>
+    </section>
+  </main>
 </body>
 </html>
