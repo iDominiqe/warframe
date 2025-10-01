@@ -1,27 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>Warframe Cycles</title>
-
-<link rel="stylesheet" href="style.css">
-
-<!-- React + ReactDOM CDN -->
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<!-- Recharts -->
-<script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
-<!-- i18next -->
-<script src="https://unpkg.com/i18next@22.5.0/i18next.min.js"></script>
-<script src="https://unpkg.com/react-i18next@12.3.0/dist/commonjs/react-i18next.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warframe Cycles Tracker</title>
+  <link rel="stylesheet" href="styles.css?v=1.0">
+  <script defer src="locales.js"></script>
+  <script defer src="app.js?v=1.0"></script>
 </head>
 <body>
-<div id="canvas-bg"></div>
-<div id="root"></div>
-<script src="script.js"></script>
+  <header>
+    <nav>
+      <div class="logo">🌗 Warframe Cycles</div>
+      <div class="menu">
+        <a href="#home">Home</a>
+        <a href="#baro">Baro Ki'Teer</a>
+        <a href="#events">Events</a>
+        <a href="#alerts">Alerts</a>
+        <a href="#streams">Devstreams</a>
+        <a href="#status">Status</a>
+        <a href="#wiki">Wiki</a>
+        <select id="langSwitcher">
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+        </select>
+        <button id="themeToggle">🌙/☀️</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="section">
+      <h1>Open World Cycles</h1>
+      <div id="star-map" class="star-map"></div>
+    </section>
+
+    <section id="baro" class="section">
+      <h1>Baro Ki'Teer</h1>
+      <div id="baro-info">Loading...</div>
+    </section>
+
+    <section id="events" class="section">
+      <h1>Events</h1>
+      <div id="events-list">Loading...</div>
+    </section>
+
+    <section id="alerts" class="section">
+      <h1>Alerts</h1>
+      <div id="alerts-list">Loading...</div>
+    </section>
+
+    <section id="streams" class="section">
+      <h1>Devstreams & News</h1>
+      <div id="streams-list">Loading...</div>
+    </section>
+
+    <section id="status" class="section">
+      <h1>Warframe Status</h1>
+      <canvas id="statusChart"></canvas>
+    </section>
+
+    <section id="wiki" class="section">
+      <h1>Warframe Wiki</h1>
+      <p>Here will be added custom wiki pages...</p>
+    </section>
+  </main>
 </body>
 </html>
