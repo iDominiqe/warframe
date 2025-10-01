@@ -1,4 +1,3 @@
-```javascript
 const expiryDate = expiry ? new Date(expiry) : (data.timeLeft? new Date(Date.now()+data.timeLeft*1000): null);
 cycles[c.key] = {raw:data, expiry: expiryDate, name: c.name, color: c.color, effect: c.effect};
 } else delete cycles[c.key]; }
@@ -48,4 +47,3 @@ window.addEventListener('keydown', e=>{ if(e.key==='t') document.getElementById(
 
 
 document.getElementById('createWikiBtn').addEventListener('click', ()=>{ const name = prompt('New wiki page title (example):'); if(!name) return; const div = document.createElement('div'); div.className='muted'; div.textContent = name; document.getElementById('wikiList').appendChild(div); });
-```
