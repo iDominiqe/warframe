@@ -1,415 +1,57 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-store" />
-  <title>Warframe Cycles — Timers & Worldstate</title>
-  <style>
-    :root{
-      --bg:#0b0f13; --card:#0f151a; --muted:#9aa6bb; --accent:#00aaff; --accent2:#7f6cff; --glass: rgba(255,255,255,0.03);
-      --radius:14px; --shadow: 0 10px 36px rgba(2,6,23,0.6); --glass-border: rgba(255,255,255,0.04);
-      color-scheme: dark; --glass-blur: blur(8px);
-    }
-    [data-theme="light"]{ --bg:#f6f8fb; --card:#ffffff; --muted:#475063; --accent:#0066cc; --accent2:#8a6cff; color-scheme: light }
-    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#05060a);color:var(--primary,#e6eef9)}
+</div>
 
-    header{backdrop-filter:var(--glass-blur);position:sticky;top:0;z-index:60;padding:10px 18px;display:flex;align-items:center;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow);display:grid;place-items:center;font-weight:700}
-    nav{margin-left:auto;display:flex;gap:8px;align-items:center}
-    nav button, nav a, nav select{background:transparent;border:0;padding:8px 12px;border-radius:10px;color:var(--muted);cursor:pointer;text-decoration:none}
 
-    main{padding:28px;max-width:1200px;margin:0 auto}
-    .panel{background:linear-gradient(180deg,var(--card), rgba(255,255,255,0.02));border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);backdrop-filter: blur(6px)}
+<div class="panel" style="margin-top:12px">
+<h3>Baro Ki'Teer (Void Trader)</h3>
+<div id="baro" class="muted">Loading...</div>
+</div>
+</div>
 
-    .grid-2{display:grid;grid-template-columns:1fr 420px;gap:18px;align-items:start}
-    @media(max-width:980px){.grid-2{grid-template-columns:1fr}.right{order:-1}}
 
-    .title{font-size:20px;margin:0 0 6px 0}
-    .muted{color:var(--muted);font-size:13px}
+<aside class="right panel">
+<h3>Star map & orbits</h3>
+<p class="muted">Hover a planet to see cycle time and details. Environmental hints shown (night/fog/cold).</p>
+<canvas id="mainOrbit"></canvas>
+<div class="muted small">Sync interval: <span id="syncInterval">30s</span>. Last sync: <span id="lastSync">—</span></div>
+</aside>
+</div>
+</section>
 
-    .cycles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
-    @media(max-width:700px){.cycles{grid-template-columns:1fr}}
 
-    .cycle-card{position:relative;overflow:hidden;display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(2,6,23,0.02));border:1px solid var(--glass-border)}
-    .orbit-canvas{width:86px;height:86px;flex:0 0 86px;border-radius:10px;display:grid;place-items:center}
-    .cycle-info h3{margin:0;font-size:16px}
-    .time{font-weight:700;font-size:18px}
-    .ends{font-size:12px;color:var(--muted)}
+<section id="page-events" class="page">
+<div class="panel"><h2>Events & Alerts</h2><div id="eventsList" class="muted">Loading events and alerts...</div></div>
+</section>
 
-    /* hover tooltip */
-    .tooltip{position:absolute;left:12px;right:12px;bottom:12px;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(255,255,255,0.02));backdrop-filter: blur(6px);transform:translateY(14px);opacity:0;transition:all .28s;pointer-events:none}
-    .cycle-card:hover .tooltip{opacity:1;transform:none}
 
-    /* star map canvas */
-    #mainOrbit{width:100%;height:420px;border-radius:12px;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(7,10,15,0.9));display:block}
+<section id="page-devstreams" class="page">
+<div class="panel"><h2>Devstreams & News</h2><div id="devstreamList" class="muted">Fetching devstreams and news...</div></div>
+</section>
 
-    /* visual effects toggles */
-    .effect-night{box-shadow: 0 8px 36px rgba(10,14,30,0.7) inset}
-    .effect-fog:after{content:'';position:absolute;inset:0;background:linear-gradient(transparent, rgba(255,255,255,0.02));mix-blend-mode:screen;pointer-events:none}
 
-    /* pages */
-    .page{display:none}
-    .page.active{display:block}
+<section id="page-status" class="page">
+<div class="panel">
+<h2>Warframe Server Status</h2>
+<p class="muted">Live-ish server load and population charts (Chart.js used).</p>
+<div class="grid-2">
+<div class="panel small"><div class="muted">Players online (approx)</div><canvas id="playersChart" width="400" height="160"></canvas></div>
+<div class="panel small"><div class="muted">Server load</div><canvas id="loadChart" width="400" height="160"></canvas></div>
+</div>
+</div>
+</section>
 
-    /* status charts */
-    .chart{width:100%;height:220px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));padding:8px}
 
-    footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+<section id="page-wiki" class="page">
+<div class="panel"><h2>Wiki (placeholder)</h2><p class="muted">This area will host manually added wiki pages.</p><button id="createWikiBtn">Create new wiki page</button><div id="wikiList"></div></div>
+</section>
+</main>
 
-    /* small responsive tweaks */
-    .small{font-size:13px}
-    .muted-tag{font-size:12px;color:var(--muted);padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02)}
 
-  </style>
-</head>
-<body data-theme="dark">
-  <header class="panel">
-    <div class="brand"><div class="logo">WF</div><div>
-      <div style="font-weight:700">Warframe Cycles</div>
-      <div class="muted small">Live worldstate • Star map • Baro • Events</div>
-    </div></div>
+<footer>Made for GitHub Pages • No caching • Responsive • EN/RU • 24-hour time</footer>
 
-    <nav>
-      <a href="#/" id="nav-home">Home</a>
-      <a href="#/events" id="nav-events">Events & Alerts</a>
-      <a href="#/devstreams" id="nav-dev">Devstreams & News</a>
-      <a href="#/status" id="nav-status">Server Status</a>
-      <a href="#/wiki" id="nav-wiki">Wiki</a>
 
-      <div style="width:8px"></div>
-      <select id="platformSelect" title="Platform">
-        <option value="pc">PC</option>
-        <option value="ps4">PlayStation</option>
-        <option value="xb1">Xbox</option>
-        <option value="swi">Switch</option>
-      </select>
-      <button id="themeToggle">Theme</button>
-      <button id="lang-en">EN</button>
-      <button id="lang-ru">RU</button>
-    </nav>
-  </header>
-
-  <main>
-    <!-- Home / Dashboard -->
-    <section id="page-home" class="page active">
-      <div class="grid-2">
-        <div>
-          <div class="panel">
-            <h2 class="title">Live cycle dashboard</h2>
-            <div class="muted">Shows many open locations: Cetus, Orb Vallis, Cambion Drift, Duviri, Zariman and more. Hover cards to see details & environmental effects.</div>
-            <div class="cycles" id="cycles"></div>
-          </div>
-
-          <div class="panel" style="margin-top:12px">
-            <h3 class="title">Baro Ki'Teer (Void Trader)</h3>
-            <div id="baro" class="muted">Loading...</div>
-          </div>
-
-        </div>
-
-        <aside class="right panel">
-          <h3 class="title">Star map & orbits</h3>
-          <div class="muted">Planets show different colors and simple environmental effects (night, fog, cold). Hover a planet to see cycle time and details.</div>
-          <canvas id="mainOrbit"></canvas>
-          <div style="margin-top:12px" class="muted small">Sync interval: <span id="syncInterval">30s</span>. Last sync: <span id="lastSync">—</span></div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- Events & Alerts -->
-    <section id="page-events" class="page">
-      <div class="panel">
-        <h2 class="title">Events & Alerts</h2>
-        <div id="eventsList" class="muted">Loading events and alerts...</div>
-      </div>
-    </section>
-
-    <!-- Devstreams & News -->
-    <section id="page-devstreams" class="page">
-      <div class="panel">
-        <h2 class="title">Devstreams & News</h2>
-        <div id="devstreamList" class="muted">Fetching devstreams and news...</div>
-      </div>
-    </section>
-
-    <!-- Server Status -->
-    <section id="page-status" class="page">
-      <div class="panel">
-        <h2 class="title">Warframe Server Status</h2>
-        <div class="muted">Live-ish server load and population charts (data from hub.warframestat.us when available).</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-          <div class="panel">
-            <div class="small muted">Players online (approx)</div>
-            <div class="chart"><canvas id="playersChart" width="400" height="160"></canvas></div>
-          </div>
-          <div class="panel">
-            <div class="small muted">Server load</div>
-            <div class="chart"><canvas id="loadChart" width="400" height="160"></canvas></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Wiki -->
-    <section id="page-wiki" class="page">
-      <div class="panel">
-        <h2 class="title">Wiki (placeholder)</h2>
-        <div class="muted">This area will host manually added wiki pages. Use the UI below to create new items later.</div>
-        <div style="margin-top:12px"><button id="createWikiBtn">Create new wiki page</button></div>
-        <div id="wikiList" style="margin-top:12px"></div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer>Made for GitHub Pages • No caching • Responsive • Language: EN/RU • 24-hour time</footer>
-
-  <script>
-    // -------------------- Configuration --------------------
-    const HUB_BASE = 'https://hub.warframestat.us';
-    const FALLBACK_BASE = 'https://api.warframestat.us';
-    let platform = localStorage.getItem('wf_platform') || 'pc';
-    const SYNC_MS = 30000; // 30s default
-    const syncIntervalEl = document.getElementById('syncInterval'); syncIntervalEl.textContent = (SYNC_MS/1000)+'s';
-
-    // Known worldstate keys we will try to fetch (some endpoints may not exist; we'll skip failures)
-    const CYCLE_KEYS = [
-      {key:'cetusCycle', name:'Cetus (Plains)', color:'#6fe3ff', effect:'night'},
-      {key:'vallisCycle', name:'Orb Vallis', color:'#9be8a8', effect:'cold'},
-      {key:'cambionCycle', name:'Cambion Drift', color:'#ffb86b', effect:'fog'},
-      {key:'duviriCycle', name:'Duviri Paradox', color:'#d9a6ff', effect:'weird'},
-      {key:'zarimanCycle', name:'Zariman', color:'#a6d0ff', effect:'night'},
-      {key:'earthCycle', name:'Earth (Day/Night)', color:'#cfe8ff', effect:'day'}
-    ];
-
-    // -------------------- Routing --------------------
-    function route(){
-      const hash = location.hash || '#/';
-      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-      if(hash.startsWith('#/events')) document.getElementById('page-events').classList.add('active');
-      else if(hash.startsWith('#/devstreams')) document.getElementById('page-devstreams').classList.add('active');
-      else if(hash.startsWith('#/status')) document.getElementById('page-status').classList.add('active');
-      else if(hash.startsWith('#/wiki')) document.getElementById('page-wiki').classList.add('active');
-      else document.getElementById('page-home').classList.add('active');
-    }
-    window.addEventListener('hashchange', route); route();
-
-    // -------------------- UI bindings --------------------
-    document.getElementById('platformSelect').value = platform;
-    document.getElementById('platformSelect').addEventListener('change', e=>{ platform=e.target.value; localStorage.setItem('wf_platform',platform); fetchAll(true); });
-    document.getElementById('themeToggle').addEventListener('click', ()=>{ document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark'; });
-    document.getElementById('lang-en').addEventListener('click', ()=>setLang('en'));
-    document.getElementById('lang-ru').addEventListener('click', ()=>setLang('ru'));
-
-    let LANG = localStorage.getItem('wf_lang') || 'en';
-    function setLang(l){ LANG=l; localStorage.setItem('wf_lang',l); document.documentElement.lang = l; }
-    setLang(LANG);
-
-    // -------------------- Data store --------------------
-    const cycles = {};
-
-    // -------------------- Fetch helpers --------------------
-    async function safeFetch(url){
-      try{ const res = await fetch(url, {cache:'no-store'}); if(!res.ok) throw new Error(res.status); return await res.json(); }catch(e){ return null; }
-    }
-
-    async function fetchEndpointFromHub(path){
-      return await safeFetch(`${HUB_BASE}${path}`) || await safeFetch(`${FALLBACK_BASE}${path}`);
-    }
-
-    // -------------------- Fetch worldstate cycles --------------------
-    async function fetchAll(force=false){
-      const now = new Date(); document.getElementById('lastSync').textContent = now.toLocaleTimeString([], {hour12:false});
-      // try to fetch cycles from hub worldstate block if available
-      for(const c of CYCLE_KEYS){
-        const data = await fetchEndpointFromHub(`/${platform}/${c.key}`) || await fetchEndpointFromHub(`/${c.key}`);
-        if(data){
-          const expiry = data.expiry || data.EndTime || data.end || (data.timeLeft? new Date(Date.now()+data.timeLeft*1000).toISOString(): null);
-          const expiryDate = expiry ? new Date(expiry) : (data.timeLeft? new Date(Date.now()+data.timeLeft*1000): null);
-          cycles[c.key] = {raw:data, expiry: expiryDate, name: c.name, color: c.color, effect: c.effect};
-        } else delete cycles[c.key];
-      }
-      fetchBaro(); fetchEvents(); fetchDevstreams(); fetchStatus(); renderCards();
-    }
-
-    // -------------------- Baro --------------------
-    async function fetchBaro(){
-      const data = await fetchEndpointFromHub(`/${platform}/voidTrader`) || await fetchEndpointFromHub(`/voidTrader`);
-      const el = document.getElementById('baro');
-      if(!data) return el.textContent = 'No data available for Baro.';
-      // 24-hour format
-      const arrives = data.start ? new Date(data.start).toLocaleString([], {hour12:false}) : (data.startString || '—');
-      const leaves = data.end ? new Date(data.end).toLocaleString([], {hour12:false}) : (data.endString || '—');
-      const location = data.location || data.node || data.region || data.tile || 'Unknown';
-      el.innerHTML = `<div><strong>${data.user || 'Void Trader'}</strong> — Arrives: ${arrives} — Leaves: ${leaves}<br>Location: <span class="muted-tag">${location}</span></div>`;
-    }
-
-    // -------------------- Events & Alerts --------------------
-    async function fetchEvents(){
-      const events = await fetchEndpointFromHub(`/${platform}/events`) || await fetchEndpointFromHub(`/events`) || await fetchEndpointFromHub(`/news`);
-      const el = document.getElementById('eventsList');
-      if(!events) return el.textContent = 'No events/alerts found.';
-      // events can be array or object; render basic list
-      let html = '<div style="display:grid;gap:8px">';
-      const list = Array.isArray(events) ? events : (events.data || []);
-      if(list.length===0) html += '<div class="muted">No active events.</div>';
-      for(const ev of list.slice(0,20)){
-        const title = ev.description || ev.message || ev.type || ev.id || ev.title || JSON.stringify(ev).slice(0,60);
-        html += `<div style="padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent)"><strong>${title}</strong><div class="muted small">Ends: ${ev.expiry ? new Date(ev.expiry).toLocaleString([], {hour12:false}) : '—'}</div></div>`;
-      }
-      html += '</div>';
-      el.innerHTML = html;
-    }
-
-    // -------------------- Devstreams & News (placeholder) --------------------
-    async function fetchDevstreams(){
-      const el = document.getElementById('devstreamList');
-      // We will try to fetch "news" from hub, and also show a placeholder list of known developer channels
-      const news = await fetchEndpointFromHub(`/news`) || await fetchEndpointFromHub(`/alerts`) || [];
-      let html = '<div style="display:grid;gap:10px">';
-      html += '<div class="muted">Official news:</div>';
-      if(Array.isArray(news) && news.length>0){
-        for(const n of news.slice(0,6)) html += `<div style="padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)"><strong>${n.title || n.message || n.description}</strong><div class="muted small">${n.date ? new Date(n.date).toLocaleString([], {hour12:false}) : ''}</div></div>`;
-      } else html += '<div class="muted">No recent news found.</div>';
-
-      html += '<div style="margin-top:8px" class="muted">Known devstream channels (Twitch):</div>';
-      const channels = ['DigitalExtreme','Twitch.TV/Warframe','Nemesis_EK'];
-      for(const c of channels) html += `<div class="muted-tag">${c}</div>`;
-      html += '</div>';
-      el.innerHTML = html;
-    }
-
-    // -------------------- Server Status (simple charts) --------------------
-    async function fetchStatus(){
-      // Try to fetch platform status /uptime or similar endpoints. We'll create simple mock if missing.
-      const playersData = Array.from({length:12}, (_,i)=>({t:i, v: Math.floor(3000 + Math.random()*5000)}));
-      const loadData = Array.from({length:12}, (_,i)=>({t:i, v: Math.random()*100}));
-      drawLineChart('playersChart', playersData, 'Players');
-      drawLineChart('loadChart', loadData, 'Load');
-    }
-
-    function drawLineChart(canvasId, data, label){
-      const cn = document.getElementById(canvasId); if(!cn) return; const ctx = cn.getContext('2d');
-      const w = cn.width; const h = cn.height; ctx.clearRect(0,0,w,h);
-      // simple line
-      ctx.beginPath(); ctx.moveTo(10, h-10 - data[0].v/(Math.max(...data.map(d=>d.v))+1)*(h-20));
-      for(let i=1;i<data.length;i++){
-        const x = 10 + i*( (w-20)/(data.length-1));
-        const y = h-10 - data[i].v/(Math.max(...data.map(d=>d.v))+1)*(h-20);
-        ctx.lineTo(x,y);
-      }
-      ctx.strokeStyle='rgba(100,200,255,0.9)'; ctx.lineWidth=2; ctx.stroke();
-    }
-
-    // -------------------- Rendering cycle cards + star map --------------------
-    const cyclesEl = document.getElementById('cycles');
-
-    function renderCards(){
-      cyclesEl.innerHTML = '';
-      for(const conf of CYCLE_KEYS){
-        const obj = cycles[conf.key];
-        const card = document.createElement('div'); card.className='cycle-card';
-        const expiry = obj && obj.expiry ? obj.expiry : null;
-        const timeText = expiry ? timeLeftString(expiry) : '—';
-        card.innerHTML = `
-          <div class="orbit-canvas"><canvas id="c-${conf.key}" width="86" height="86"></canvas></div>
-          <div class="cycle-info">
-            <h3>${conf.name}</h3>
-            <div class="time" id="time-${conf.key}">${timeText}</div>
-            <div class="ends muted" id="ends-${conf.key}">${expiry? 'Ends: '+expiry.toLocaleString([], {hour12:false}): 'No data'}</div>
-          </div>
-          <div class="tooltip" id="tip-${conf.key}">Hover to see details</div>
-        `;
-        cyclesEl.appendChild(card);
-        setupMiniOrbit(`c-${conf.key}`, conf, obj);
-        // hover effect: show environment
-        if(conf.effect && obj){
-          if(conf.effect==='night') card.classList.add('effect-night');
-          if(conf.effect==='fog') card.classList.add('effect-fog');
-        }
-      }
-      renderStarMap();
-    }
-
-    function timeLeftString(dt){
-      const ms = Math.max(0, dt - Date.now());
-      const s = Math.floor(ms/1000); const hh = Math.floor(s/3600); const mm = Math.floor((s%3600)/60); const ss = s%60;
-      return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
-    }
-
-    function setupMiniOrbit(canvasId, conf, obj){
-      const cn = document.getElementById(canvasId); if(!cn) return; const ctx = cn.getContext('2d');
-      function draw(){
-        ctx.clearRect(0,0,cn.width,cn.height);
-        ctx.fillStyle='rgba(255,255,255,0.02)'; ctx.beginPath(); ctx.roundRect(4,4,78,78,8); ctx.fill();
-        const cx = cn.width/2, cy = cn.height/2; const R=22;
-        let frac = 0; if(obj && obj.expiry){ const remaining = Math.max(0, obj.expiry - Date.now()); const period = Math.max(60*1000, (obj.raw && obj.raw.cycleLength? obj.raw.cycleLength*1000 : remaining)); frac = 1 - remaining/period; }
-        const angle = frac * Math.PI*2; const px = cx + Math.cos(angle)*R; const py = cy + Math.sin(angle)*R;
-        // orbit
-        ctx.beginPath(); ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.fillStyle=conf.color || 'rgba(255,255,255,0.12)'; ctx.arc(px,py,6,0,Math.PI*2); ctx.fill();
-      }
-      draw();
-      function tick(){
-        const el = document.getElementById('time-'+canvasId.replace('c-',''));
-        const endsEl = document.getElementById('ends-'+canvasId.replace('c-',''));
-        const tip = document.getElementById('tip-'+canvasId.replace('c-',''));
-        if(obj && obj.expiry){ el.textContent = timeLeftString(obj.expiry); endsEl.textContent = 'Ends: '+ obj.expiry.toLocaleString([], {hour12:false}); tip.innerHTML = `State: ${obj.raw.state || obj.raw.status || '—'}<br>Expiry: ${obj.expiry.toLocaleString([], {hour12:false})}`; }
-        else { el.textContent='—'; endsEl.textContent='No data'; tip.textContent='No data'; }
-        draw(); requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
-
-    // -------------------- Star map rendering --------------------
-    const mainCanvas = document.getElementById('mainOrbit'); const mctx = mainCanvas.getContext('2d');
-    function renderStarMap(){
-      const DPR = devicePixelRatio||1; mainCanvas.width = mainCanvas.clientWidth*DPR; mainCanvas.height = 420*DPR; const w = mainCanvas.width; const h = mainCanvas.height; mctx.clearRect(0,0,w,h);
-      // background stars
-      mctx.fillStyle='rgba(255,255,255,0.02)'; for(let i=0;i<120;i++){ mctx.fillRect(Math.random()*w, Math.random()*h, Math.random()*1.5, Math.random()*1.5); }
-      // sun center
-      const cx=w/2, cy=h/2; mctx.beginPath(); mctx.fillStyle='rgba(255,200,80,0.95)'; mctx.arc(cx,cy,30*DPR,0,Math.PI*2); mctx.fill();
-      // draw planets from CYCLE_KEYS
-      CYCLE_KEYS.forEach((conf, i)=>{
-        const r = 70 + i*46;
-        const obj = cycles[conf.key];
-        let frac = 0;
-        if(obj && obj.expiry){ const remaining = Math.max(0,obj.expiry - Date.now()); const period = Math.max(60*1000, (obj.raw && obj.raw.cycleLength? obj.raw.cycleLength*1000 : remaining)); frac = 1 - remaining/period; }
-        const angle = frac * Math.PI*2 + (Date.now()/8000)*(0.2/(i+1));
-        const px = cx + Math.cos(angle)*r; const py = cy + Math.sin(angle)*r;
-        // orbit ring
-        mctx.beginPath(); mctx.strokeStyle='rgba(255,255,255,0.04)'; mctx.lineWidth=1; mctx.arc(cx,cy,r,0,Math.PI*2); mctx.stroke();
-        // planet
-        mctx.beginPath(); const col = conf.color || '#fff'; mctx.fillStyle = col; mctx.arc(px,py,12*DPR,0,Math.PI*2); mctx.fill();
-        // label
-        mctx.font = `${12*DPR}px Arial`; mctx.fillStyle='rgba(255,255,255,0.85)'; mctx.fillText(conf.name, px+14*DPR, py+4*DPR);
-        // subtle environmental icon
-        if(conf.effect==='night'){ mctx.beginPath(); mctx.fillStyle='rgba(255,255,255,0.08)'; mctx.arc(px-8*DPR,py-10*DPR,4*DPR,0,Math.PI*2); mctx.fill(); }
-      });
-    }
-    // re-render with animation
-    function animateStarMap(){ renderStarMap(); requestAnimationFrame(animateStarMap); }
-    animateStarMap();
-
-    // -------------------- Sync loop --------------------
-    let syncTimer=null;
-    async function startSync(){ await fetchAll(true); if(syncTimer) clearInterval(syncTimer); syncTimer = setInterval(fetchAll, SYNC_MS); }
-    startSync();
-
-    // -------------------- Utils --------------------
-    CanvasRenderingContext2D.prototype.roundRect = CanvasRenderingContext2D.prototype.roundRect || function(x,y,w,h,r){ if(typeof r==='undefined') r=6; this.beginPath(); this.moveTo(x+r,y); this.arcTo(x+w,y,x+w,y+h,r); this.arcTo(x+w,y+h,x,y+h,r); this.arcTo(x,y+h,x,y,r); this.arcTo(x,y,x+w,y,r); this.closePath(); return this; }
-
-    // -------------------- Initial extra pages hooks --------------------
-    window.addEventListener('keydown', e=>{ if(e.key==='t') document.getElementById('themeToggle').click(); if(e.key==='l') setLang(LANG==='en'?'ru':'en'); });
-
-    // Wiki button placeholder
-    document.getElementById('createWikiBtn').addEventListener('click', ()=>{ const name = prompt('New wiki page title (example):'); if(!name) return; const div = document.createElement('div'); div.className='muted-tag'; div.textContent = name; document.getElementById('wikiList').appendChild(div); });
-
-    // small initial fetch
-    setTimeout(()=>{ startSync(); }, 200);
-  </script>
+<!-- Chart.js CDN for charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
