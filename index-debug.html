@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Debug — Warframe Cycles</title>
+  <style>body{font-family:Arial,Helvetica,sans-serif;background:#08111a;color:#e6eef8;padding:12px} pre{background:#0b1220;padding:12px;border-radius:8px;overflow:auto}</style>
+</head><body>
+<h2>Debug версия — лог сетевых ошибок</h2>
+<p>Открой DevTools → Console/Network и посмотри ошибки CORS / 404 / 5xx.</p>
+<pre id="log">Запуск...</pre>
+<script>
+const HUB='https://hub.warframestat.us';
+const paths=['/pc/cetusCycle','/pc/earthCycle','/pc/voidTrader','/pc/fissures'];
+const logEl=document.getElementById('log');
+function log(s){ logEl.textContent += '\\n'+s; console.log(s); }
+async function test(){
+  for (const p of paths){
+    const u = HUB + p + (p.includes('?')? '&' : '?') + '_=' + Date.now();
+    log('Запрос: '+u);
+    try{
+      const r = await fetch(u, {mode:'cors', cache:'no-store'});
+      log('Ответ: '+r.status+' '+r.statusText);
+      try{ const j = await r.json(); log('JSON keys: '+Object.keys(j).join(',')); }catch(e){ log('Не JSON: '+e.message); }
+    }catch(e){ log('Ошибка fetch: '+e.message); }
+  }
+}
+test();
+</script>
+</body>
+</html>
