@@ -6,18 +6,19 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Warframe Cycles — Live</title>
+  <title>Warframe Cycles — Live (fixed)</title>
   <style>
     :root{
       --bg:#0b0f14; --card:#111419; --muted:#95a3bf; --accent:#00aaff; --glass: rgba(255,255,255,0.03);
-      --radius:14px; --gap:14px; --pad:14px; font-family: Inter, Roboto, Arial, sans-serif;
+      --radius:12px; --gap:12px; --pad:12px; font-family: Inter, Roboto, Arial, sans-serif;
     }
     html,body{height:100%;margin:0;background:linear-gradient(180deg,#061019 0%, #08121a 100%);color:#e6eef8;}
-    .wrap{max-width:1200px;margin:18px auto;padding:18px;box-sizing:border-box;}
-    header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .wrap{max-width:1200px;margin:12px auto;padding:12px;box-sizing:border-box;}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
     header h1{font-size:20px;margin:0;letter-spacing:0.6px}
     header p{margin:0;color:var(--muted);font-size:13px}
     .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .controls label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
     button{background:var(--glass);border:1px solid rgba(255,255,255,0.03);color:inherit;padding:8px 10px;border-radius:10px;cursor:pointer}
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);}
     .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:var(--pad);box-shadow:0 6px 18px rgba(2,6,12,0.6);min-height:90px;display:flex;flex-direction:column;justify-content:space-between}
@@ -25,20 +26,22 @@
     .name{font-weight:600}
     .time{font-size:20px;font-weight:700;letter-spacing:0.6px}
     .muted{color:var(--muted);font-size:13px}
-    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+    footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
+    .snippet{font-family:monospace;font-size:12px;color:#cfe6ff;white-space:pre-wrap;word-break:break-word;margin-top:8px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px}
     /* responsive */
     @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr);} }
-    @media (max-width:640px){ header h1{font-size:16px} .grid{grid-template-columns:1fr;} .card{padding:12px} .time{font-size:18px} }
+    @media (max-width:640px){ header h1{font-size:16px} .grid{grid-template-columns:1fr;} .card{padding:10px} .time{font-size:18px} .controls{width:100%;justify-content:flex-end} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div>
-        <h1>Warframe Cycles — Live</h1>
-        <p>Данные синхронизируются каждые ~30 секунд, кеш отключён в клиенте.</p>
+        <h1>Warframe Cycles — Live (fixed)</h1>
+        <p>Синхронизация каждые ~30 секунд. Улучшенная обработка ошибок и fallback через публичный CORS-прокси при необходимости.</p>
       </div>
       <div class="controls">
+        <label><input type="checkbox" id="use-proxy"> использовать прокси при ошибке</label>
         <button id="btn-refresh">Обновить</button>
         <button id="btn-debug">Debug</button>
       </div>
@@ -47,126 +50,192 @@
     <main>
       <div id="grid" class="grid" role="list" aria-live="polite"></div>
       <div id="status" class="muted" style="margin-top:10px"></div>
+      <div id="log-snippet" class="snippet" style="display:none"></div>
     </main>
-    <footer>Сделано: готово к загрузке на GitHub Pages. Если данные не появляются — возможно CORS (см. debug).</footer>
+    <footer>Если видишь в статусе "Non-JSON" или HTML — скопируй сниппет в debug-страницу и пришли мне для анализа.</footer>
   </div>
 
 <script>
-// Отменяем service workers, если были зарегистрированы (они могут кэшировать старую версию)
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister().catch(()=>{})));
-}
-
-// Настройки
-const SYNC_MS = 30000; // 30s
-const HUB = 'https://hub.warframestat.us';
-const endpoints = [
-  {id:'cetus', name:'Cetus Cycle', path:'/pc/cetusCycle'},
-  {id:'earth', name:'Earth Cycle', path:'/pc/earthCycle'},
-  {id:'voidTrader', name:'Void Trader', path:'/pc/voidTrader'},
-  {id:'fissures', name:'Fissures', path:'/pc/fissures'}
-];
-
-const grid = document.getElementById('grid');
-const status = document.getElementById('status');
-const btnRefresh = document.getElementById('btn-refresh');
-const btnDebug = document.getElementById('btn-debug');
-let lastData = {};
-
-// Добавляем карточки в DOM
-function ensureCards(){
-  grid.innerHTML = '';
-  for (const e of endpoints){
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.id = 'card-'+e.id;
-    card.innerHTML = `
-      <div class="title"><div class="name">${e.name}</div><div style="margin-left:auto" class="muted" id="${e.id}-muted"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-        <div class="time" id="${e.id}-time">—</div>
-        <div class="muted" id="${e.id}-eta">—</div>
-      </div>`;
-    grid.appendChild(card);
+(async function(){
+  // Безопасное отвязывание service workers — с обработкой ошибок (пользователь мог отказать)
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations().catch(err=>{ throw err; });
+      await Promise.all(regs.map(r => r.unregister().catch(()=>{}))).catch(()=>{});
+      console.log('Service workers unregistered (if any)');
+    }
+  } catch(swErr) {
+    console.warn('ServiceWorker unregister skipped or denied:', swErr && swErr.message);
   }
-}
-ensureCards();
 
-// Умная fetch с querystring-бастером и без кэша
-function fetchNoCache(path){
-  const url = HUB + path + (path.includes('?') ? '&' : '?') + '_=' + Date.now();
-  return fetch(url, {cache:'no-store', mode:'cors'})
-    .then(r => {
-      if (!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    });
-}
+  const SYNC_MS = 30000; // 30s
+  const HUB = 'https://hub.warframestat.us';
+  const endpoints = [
+    {id:'cetus', name:'Cetus Cycle', path:'/pc/cetusCycle'},
+    {id:'earth', name:'Earth Cycle', path:'/pc/earthCycle'},
+    {id:'voidTrader', name:'Void Trader', path:'/pc/voidTrader'},
+    {id:'fissures', name:'Fissures', path:'/pc/fissures'}
+  ];
 
-// Парсер времени: возвращает оставшиеся секунды
-function secondsLeftFrom(obj){
-  // try common properties
-  if (!obj) return null;
-  const keys = ['expiry','expiryDate','end','EndTime','start','activation','activationTime'];
-  for (const k of keys){
-    if (obj[k]){
-      const d = new Date(obj[k]);
+  const grid = document.getElementById('grid');
+  const status = document.getElementById('status');
+  const btnRefresh = document.getElementById('btn-refresh');
+  const btnDebug = document.getElementById('btn-debug');
+  const proxyCheckbox = document.getElementById('use-proxy');
+  const logSnippet = document.getElementById('log-snippet');
+  let lastData = {};
+  let lastRaw = {};
+
+  function ensureCards(){
+    grid.innerHTML = '';
+    for (const e of endpoints){
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'card-'+e.id;
+      card.innerHTML = `
+        <div class="title"><div class="name">${e.name}</div><div style="margin-left:auto" class="muted" id="${e.id}-muted"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <div class="time" id="${e.id}-time">—</div>
+          <div class="muted" id="${e.id}-eta">—</div>
+        </div>
+        <div class="snippet" id="${e.id}-snippet" style="display:none"></div>`;
+      grid.appendChild(card);
+    }
+  }
+  ensureCards();
+
+  // fetch that reads text so we can show snippet if not JSON
+  async function fetchNoCache(path, options = {}){
+    const url = HUB + path + (path.includes('?') ? '&' : '?') + '_=' + Date.now();
+    try {
+      const r = await fetch(url, {cache:'no-store', mode:'cors'});
+      const ct = r.headers.get('content-type') || '';
+      const text = await r.text();
+      lastRaw[url] = {status: r.status, statusText: r.statusText, ct, textSnippet: text.slice(0,300)};
+      if (!r.ok) {
+        throw new Error('HTTP '+r.status+' '+r.statusText+' — '+ text.slice(0,300));
+      }
+      // quick heuristic: content-type must be JSON OR text starts with { or [
+      if (!ct.toLowerCase().includes('application/json') && !text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+        throw new Error('Non-JSON response: content-type=' + ct + ' snippet='+ text.slice(0,300));
+      }
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error('JSON parse error: ' + e.message + ' — snippet=' + text.slice(0,300));
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // fallback via public CORS proxy (AllOrigins). Note: public proxy may be rate-limited/unreliable.
+  async function fetchViaProxy(path){
+    const target = HUB + path + (path.includes('?') ? '&' : '?') + '_=' + Date.now();
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target);
+    const r = await fetch(proxy, {cache:'no-store', mode:'cors'});
+    const text = await r.text();
+    // AllOrigins returns the raw body; try parse
+    try {
+      return JSON.parse(text);
+    } catch(e) {
+      throw new Error('Proxy returned non-JSON or parse error: ' + e.message + ' — snippet=' + text.slice(0,300));
+    }
+  }
+
+  function secondsLeftFrom(obj){
+    if (!obj) return null;
+    const keys = ['expiry','expiryDate','end','EndTime','start','activation','activationTime'];
+    for (const k of keys){
+      if (obj[k]){
+        const d = new Date(obj[k]);
+        if (!isNaN(d)) return Math.max(0, Math.floor((d - Date.now())/1000));
+      }
+    }
+    // try known shapes
+    if (obj.expiry && typeof obj.expiry === 'string'){
+      const d = new Date(obj.expiry);
       if (!isNaN(d)) return Math.max(0, Math.floor((d - Date.now())/1000));
     }
+    return null;
   }
-  // try nested
-  if (obj.expiry && typeof obj.expiry === 'string'){
-    const d = new Date(obj.expiry);
-    if (!isNaN(d)) return Math.max(0, Math.floor((d - Date.now())/1000));
+
+  function formatTime(s){
+    if (s === null) return '—';
+    const days = Math.floor(s/86400); s%=86400;
+    const hours = Math.floor(s/3600); s%=3600;
+    const mins = Math.floor(s/60); const secs = s%60;
+    const parts = [];
+    if (days) parts.push(days+'d');
+    if (hours) parts.push(hours+'h');
+    if (mins) parts.push(mins+'m');
+    parts.push(secs+'s');
+    return parts.join(' ');
   }
-  return null;
-}
 
-function formatTime(s){
-  if (s === null) return '—';
-  const days = Math.floor(s/86400); s%=86400;
-  const hours = Math.floor(s/3600); s%=3600;
-  const mins = Math.floor(s/60); const secs = s%60;
-  const parts = [];
-  if (days) parts.push(days+'d');
-  if (hours) parts.push(hours+'h');
-  if (mins) parts.push(mins+'m');
-  parts.push(secs+'s');
-  return parts.join(' ');
-}
+  async function updateOnce(verbose=false){
+    status.textContent = 'Обновление... ' + new Date().toLocaleTimeString();
+    logSnippet.style.display = 'none';
+    const promises = endpoints.map(async e => {
+      const snippetEl = document.getElementById(e.id + '-snippet');
+      snippetEl.style.display = 'none';
+      try{
+        let data;
+        try {
+          data = await fetchNoCache(e.path);
+        } catch (firstErr) {
+          // direct failed — show snippet and optionally try proxy fallback
+          console.warn('Direct fetch failed for', e.path, firstErr && firstErr.message);
+          snippetEl.textContent = String(firstErr.message).slice(0,800);
+          snippetEl.style.display = 'block';
+          if (proxyCheckbox.checked) {
+            status.textContent = 'Direct failed — trying proxy...';
+            data = await fetchViaProxy(e.path);
+          } else {
+            throw firstErr;
+          }
+        }
+        lastData[e.id] = data;
+        const sec = secondsLeftFrom(data);
+        document.getElementById(e.id+'-time').textContent = formatTime(sec);
+        document.getElementById(e.id+'-eta').textContent = sec===null? 'нет данных' : 'осталось';
+        document.getElementById(e.id+'-muted').textContent = verbose ? JSON.stringify(data).slice(0,80) : '';
+        return {id:e.id, ok:true};
+      }catch(err){
+        document.getElementById(e.id+'-time').textContent = 'ошибка';
+        document.getElementById(e.id+'-eta').textContent = (err && err.message) ? err.message.slice(0,120) : 'fetch error';
+        document.getElementById(e.id+'-muted').textContent = '';
+        return {id:e.id, ok:false, err:err};
+      }
+    });
+    const results = await Promise.all(promises);
+    const failed = results.filter(r=>!r.ok).length;
+    status.textContent = `Обновлено: ${new Date().toLocaleTimeString()} — Ошибок: ${failed}`;
+    return results;
+  }
 
-async function updateOnce(verbose=false){
-  status.textContent = 'Обновление... ' + new Date().toLocaleTimeString();
-  const promises = endpoints.map(async e => {
-    try{
-      const data = await fetchNoCache(e.path);
-      lastData[e.id] = data;
-      const sec = secondsLeftFrom(data);
-      document.getElementById(e.id+'-time').textContent = formatTime(sec);
-      document.getElementById(e.id+'-eta').textContent = sec===null? 'нет данных' : 'осталось';
-      document.getElementById(e.id+'-muted').textContent = verbose ? JSON.stringify(data).slice(0,40) : '';
-      return {id:e.id, ok:true};
-    }catch(err){
-      document.getElementById(e.id+'-time').textContent = 'ошибка';
-      document.getElementById(e.id+'-eta').textContent = err.message||'fetch error';
-      document.getElementById(e.id+'-muted').textContent = '';
-      return {id:e.id, ok:false, err:err};
-    }
+  // first run + timer
+  await updateOnce();
+  let timer = setInterval(()=> updateOnce(), SYNC_MS);
+
+  btnRefresh.addEventListener('click', ()=> updateOnce());
+  btnDebug.addEventListener('click', ()=> {
+    updateOnce(true).then(()=>{
+      alert('Debug: консоль содержит дополнительные данные. Сниппеты показаны в карточках.');
+      console.log('lastData', lastData);
+      console.log('lastRaw (snippets)', lastRaw);
+      // display lastRaw snippet if present
+      const keys = Object.keys(lastRaw);
+      if (keys.length) {
+        logSnippet.style.display = 'block';
+        logSnippet.textContent = 'Последние ответные сниппеты (url -> snippet):\\n' + keys.map(k => k + ' -> ' + JSON.stringify(lastRaw[k]).slice(0,400)).join('\\n\\n');
+      }
+    });
   });
-  const results = await Promise.all(promises);
-  const failed = results.filter(r=>!r.ok).length;
-  status.textContent = `Обновлено: ${new Date().toLocaleTimeString()} — Ошибок: ${failed}`;
-  return results;
-}
 
-// Первая загрузка и цикл
-updateOnce();
-let timer = setInterval(()=> updateOnce(), SYNC_MS);
-
-// Кнопки
-btnRefresh.addEventListener('click', ()=> updateOnce());
-btnDebug.addEventListener('click', ()=> { updateOnce(true).then(()=>{ alert('Debug: консоль содержит дополнительные данные'); console.log('lastData', lastData); }); });
-
-// Для предотвращения кеширования HTML при прямом открытии в браузере (локально) — мы используем мета-теги выше и bust в fetch.
-// Также добавляем временный query string к самому документу при ручном тестировании: ?_nocache=TIMESTAMP
+  // expose for console quick tests
+  window.__wf = {updateOnce, fetchNoCache, fetchViaProxy};
+})();
 </script>
 </body>
 </html>
