@@ -1,241 +1,395 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Warframe Cycles — Live (fixed)</title>
-  <style>
-    :root{
-      --bg:#0b0f14; --card:#111419; --muted:#95a3bf; --accent:#00aaff; --glass: rgba(255,255,255,0.03);
-      --radius:12px; --gap:12px; --pad:12px; font-family: Inter, Roboto, Arial, sans-serif;
-    }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#061019 0%, #08121a 100%);color:#e6eef8;}
-    .wrap{max-width:1200px;margin:12px auto;padding:12px;box-sizing:border-box;}
-    header{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-    header h1{font-size:20px;margin:0;letter-spacing:0.6px}
-    header p{margin:0;color:var(--muted);font-size:13px}
-    .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
-    .controls label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
-    button{background:var(--glass);border:1px solid rgba(255,255,255,0.03);color:inherit;padding:8px 10px;border-radius:10px;cursor:pointer}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:var(--pad);box-shadow:0 6px 18px rgba(2,6,12,0.6);min-height:90px;display:flex;flex-direction:column;justify-content:space-between}
-    .title{display:flex;align-items:center;gap:8px}
-    .name{font-weight:600}
-    .time{font-size:20px;font-weight:700;letter-spacing:0.6px}
-    .muted{color:var(--muted);font-size:13px}
-    footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
-    .snippet{font-family:monospace;font-size:12px;color:#cfe6ff;white-space:pre-wrap;word-break:break-word;margin-top:8px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px}
-    /* responsive */
-    @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr);} }
-    @media (max-width:640px){ header h1{font-size:16px} .grid{grid-template-columns:1fr;} .card{padding:10px} .time{font-size:18px} .controls{width:100%;justify-content:flex-end} }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Warframe WorldState — Cycles & Info</title>
+<style>
+:root{
+  --bg:#061021; --card:#0f1720; --muted:#97a6c1; --accent:#00b0ff; --glass: rgba(255,255,255,0.03);
+  --radius:12px; --gap:14px; --pad:12px; font-family: Inter, Roboto, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:radial-gradient(ellipse at top left,#07101a 0%, #04060a 60%);color:#e6eef8}
+.wrap{max-width:1200px;margin:14px auto;padding:12px}
+.header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.title{font-size:20px;font-weight:700}
+.controls{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.select, .btn {background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px 10px;border-radius:10px;cursor:pointer}
+.note{color:var(--muted);font-size:13px;margin-top:6px}
+
+/* Planetarium */
+.planetarium{margin-top:16px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:14px;padding:14px;overflow:hidden;position:relative}
+.stars{position:absolute;inset:0;background-image:radial-gradient(#0f2340 1px, transparent 1px);background-size:120px 120px;opacity:0.06;transform:translateZ(0)}
+.planets{position:relative;display:flex;gap:20px;align-items:center;justify-content:center;padding:30px 10px;min-height:200px}
+.planet{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 6px 20px rgba(0,0,0,0.6);cursor:pointer;transition:transform .22s ease, box-shadow .22s ease;position:relative}
+.planet img{width:68px;height:68px;pointer-events:none;border-radius:50%}
+.planet:hover{transform:translateY(-8px) scale(1.06);box-shadow:0 14px 40px rgba(0,0,0,0.7)}
+.planet .label{position:absolute;bottom:-28px;width:160px;text-align:center;font-size:13px;color:var(--muted);left:50%;transform:translateX(-50%)}
+.panel-info{position:absolute;right:18px;top:14px;background:rgba(0,0,0,0.25);backdrop-filter:blur(6px);padding:10px;border-radius:8px;min-width:220px;border:1px solid rgba(255,255,255,0.03)}
+.panel-info h4{margin:0 0 8px 0;font-size:14px}
+.panel-info .small{font-size:13px;color:var(--muted)}
+
+/* Cards */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,12,0.6);min-height:80px}
+.card h3{margin:0 0 8px 0;font-size:16px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.value{font-weight:700;font-size:16px}
+.small{color:var(--muted);font-size:13px}
+
+/* responsive */
+@media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .planet{width:84px;height:84px}.planet img{width:56px;height:56px} }
+@media (max-width:680px){ .controls{width:100%;justify-content:flex-end} .grid{grid-template-columns:1fr} .panel-info{position:static;margin-top:12px} .planets{flex-wrap:wrap} .planet{margin:8px} }
+
+.footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center;padding-bottom:30px}
+
+/* tiny utilities */
+.hidden{display:none}
+.bad{color:#ff8080}
+.good{color:#7fffb0}
+.monoblock{font-family:monospace;font-size:12px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;margin-top:8px;overflow:auto;max-height:140px}
+
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Warframe Cycles — Live (fixed)</h1>
-        <p>Синхронизация каждые ~30 секунд. Улучшенная обработка ошибок и fallback через публичный CORS-прокси при необходимости.</p>
-      </div>
-      <div class="controls">
-        <label><input type="checkbox" id="use-proxy"> использовать прокси при ошибке</label>
-        <button id="btn-refresh">Обновить</button>
-        <button id="btn-debug">Debug</button>
-      </div>
-    </header>
-
-    <main>
-      <div id="grid" class="grid" role="list" aria-live="polite"></div>
-      <div id="status" class="muted" style="margin-top:10px"></div>
-      <div id="log-snippet" class="snippet" style="display:none"></div>
-    </main>
-    <footer>Если видишь в статусе "Non-JSON" или HTML — скопируй сниппет в debug-страницу и пришли мне для анализа.</footer>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="title">Warframe — WorldState Dashboard</div>
+      <div class="note">Live данные с официального WorldState API. Выбери платформу и дождись обновления.</div>
+    </div>
+    <div class="controls">
+      <select id="platform" class="select" title="Platform">
+        <option value="pc">PC</option>
+        <option value="ps4">PS4</option>
+        <option value="xb1">Xbox</option>
+        <option value="swi">Switch</option>
+        <option value="mob">Mobile</option>
+      </select>
+      <button id="btn-refresh" class="btn">Обновить</button>
+      <button id="btn-debug" class="btn">Debug</button>
+    </div>
   </div>
 
-<script>
-(async function(){
-  // Безопасное отвязывание service workers — с обработкой ошибок (пользователь мог отказать)
-  try {
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations().catch(err=>{ throw err; });
-      await Promise.all(regs.map(r => r.unregister().catch(()=>{}))).catch(()=>{});
-      console.log('Service workers unregistered (if any)');
-    }
-  } catch(swErr) {
-    console.warn('ServiceWorker unregister skipped or denied:', swErr && swErr.message);
-  }
+  <section class="planetarium" aria-label="Planetarium">
+    <div class="stars" aria-hidden="true"></div>
+    <div class="planets" id="planets">
+      <!-- Planets inserted by JS -->
+    </div>
+    <div class="panel-info" id="panel-info" aria-live="polite">
+      <h4 id="panel-title">Выбери планету</h4>
+      <div class="small" id="panel-desc">Наведи курсор на планету чтобы увидеть текущие циклы / доступные локации</div>
+    </div>
+  </section>
 
-  const SYNC_MS = 30000; // 30s
-  const HUB = 'https://hub.warframestat.us';
-  const endpoints = [
-    {id:'cetus', name:'Cetus Cycle', path:'/pc/cetusCycle'},
-    {id:'earth', name:'Earth Cycle', path:'/pc/earthCycle'},
-    {id:'voidTrader', name:'Void Trader', path:'/pc/voidTrader'},
-    {id:'fissures', name:'Fissures', path:'/pc/fissures'}
+  <section id="cards" class="grid" aria-live="polite">
+    <!-- cards injected here -->
+  </section>
+
+  <div class="footer" id="status">Статус: ждём загрузки...</div>
+</div>
+
+<script>
+/*
+  Single-file WorldState dashboard.
+  - Uses official endpoints per platform provided by user.
+  - Parses many known sections and displays timers.
+  - Top: planetarium with planets (hover shows quick info).
+  - Bottom: cards with parsed sections from WorldState JSON.
+*/
+
+const ENDPOINTS = {
+  pc: 'https://content.warframe.com/dynamic/worldState.php',
+  ps4: 'https://content-ps4.warframe.com/dynamic/worldState.php',
+  xb1: 'https://content-xb1.warframe.com/dynamic/worldState.php',
+  swi: 'https://content-swi.warframe.com/dynamic/worldState.php',
+  mob: 'https://content-mob.warframe.com/dynamic/worldState.php'
+};
+
+const SYNC_MS = 30000; // 30s
+const planetsConfig = [
+  {id:'earth', name:'Earth', keyMatches: ['EarthCycle','earthCycle']},
+  {id:'cetus', name:'Cetus', keyMatches: ['CetusCycle','cetusCycle','OstronCycle','cetus']},
+  {id:'cambion', name:'Cambion Drift', keyMatches: ['CambionCycle','cambionCycle']},
+  {id:'veil', name:'Veil', keyMatches: ['VeilCycle','veilCycle']},
+  {id:'plains', name:'Plains (Cetus)', keyMatches: ['CetusCycle','plainsCycle']},
+  {id:'rotation', name:'Fissures/Events', keyMatches: ['ActiveMissions','ActiveFissures','Fissures','fissures']}
+];
+
+// helpers
+function $(id){return document.getElementById(id)}
+function el(tag, cls){ const d=document.createElement(tag); if(cls) d.className=cls; return d; }
+function now(){ return Date.now(); }
+function tryGet(obj, keys){ if(!obj) return undefined; for(const k of keys){ if(k in obj) return obj[k]; if(k.toLowerCase() in obj) return obj[k.toLowerCase()]; } return undefined; }
+function findDateIn(obj){
+  if(!obj) return null;
+  const tryKeys = ['expiry','end','EndTime','activation','Activation','activationDate','expiryDate','ActivationTime','ExpiryTime','start','startString'];
+  for(const k of tryKeys){ if(obj[k]){ const d=new Date(obj[k]); if(!isNaN(d)) return d; } }
+  // search nested primitives
+  try{
+    const txt = JSON.stringify(obj);
+    const m = txt.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    if(m) return new Date(m[0]);
+  }catch(e){}
+  return null;
+}
+function toSecondsLeft(d){ if(!d) return null; const s = Math.floor((d - Date.now())/1000); return s>0? s:0; }
+function fmtDuration(s){
+  if(s===null) return '—';
+  let days=Math.floor(s/86400); s%=86400;
+  let hrs=Math.floor(s/3600); s%=3600;
+  let mins=Math.floor(s/60); let secs=s%60;
+  const parts=[]; if(days) parts.push(days+'d'); if(hrs) parts.push(hrs+'h'); if(mins) parts.push(mins+'m'); parts.push(secs+'s'); return parts.join(' ');
+}
+
+// UI setup
+const planetsEl = $('planets');
+const cardsEl = $('cards');
+const statusEl = $('status');
+const platformSelect = $('platform');
+const btnRefresh = $('btn-refresh');
+const btnDebug = $('btn-debug');
+
+// create planet DOM elements
+function buildPlanets(){
+  planetsEl.innerHTML='';
+  for(const p of planetsConfig){
+    const node = el('div','planet');
+    node.dataset.pid = p.id;
+    node.innerHTML = `<img src="data:image/svg+xml;utf8,${encodeURIComponent(makePlanetSVG(p.name[0]))}" alt="${p.name}"><div class="label">${p.name}</div>`;
+    node.addEventListener('mouseenter', ()=> onPlanetHover(p));
+    node.addEventListener('click', ()=> onPlanetClick(p));
+    planetsEl.appendChild(node);
+  }
+}
+function makePlanetSVG(letter){
+  // simple circle icon svg with letter to avoid external assets
+  return `
+  <svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'>
+    <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%2300b0ff'/><stop offset='1' stop-color='%231080ff'/></linearGradient></defs>
+    <rect width='120' height='120' rx='60' fill='url(%23g)' opacity='0.12'/>
+    <circle cx='60' cy='60' r='44' fill='url(%23g)' opacity='0.22' />
+    <text x='60' y='72' font-family='Arial' font-size='44' fill='white' text-anchor='middle' font-weight='700'>${letter}</text>
+  </svg>`;
+}
+
+// planet interactions
+let lastWorldState = null;
+function onPlanetHover(p){
+  const title = $('panel-title');
+  const desc = $('panel-desc');
+  title.textContent = p.name;
+  // try to find a matching key in lastWorldState
+  if(!lastWorldState){ desc.textContent = 'Нет данных — подождите обновления.'; return; }
+  let info = null;
+  for(const key of p.keyMatches){
+    if(lastWorldState[key] !== undefined){
+      info = lastWorldState[key]; break;
+    }
+    // also scan keys case-insensitively
+    for(const k in lastWorldState){
+      if(k.toLowerCase()===key.toLowerCase()){ info = lastWorldState[k]; break; }
+    }
+    if(info) break;
+  }
+  if(!info){ desc.textContent = 'Данных для этой области не найдено.'; return; }
+  // attempt to extract time info or status
+  const dt = findDateIn(info);
+  if(dt){ desc.innerHTML = `<div class="small">Осталось: <strong>${fmtDuration(toSecondsLeft(dt))}</strong></div>`; }
+  else {
+    desc.innerHTML = `<div class="small">Info: <pre class="monoblock">${JSON.stringify(info).slice(0,300)}</pre></div>`;
+  }
+}
+
+function onPlanetClick(p){
+  // scroll to card for that section if exists
+  const targetKeys = p.keyMatches;
+  const cards = document.querySelectorAll('.card');
+  for(const c of cards){
+    const ck = c.dataset.key;
+    if(!ck) continue;
+    for(const k of targetKeys){
+      if(ck.toLowerCase().includes(k.toLowerCase())){
+        c.scrollIntoView({behavior:'smooth', block:'center'});
+        c.animate([{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:300});
+        return;
+      }
+    }
+  }
+}
+
+// parsing worldstate and rendering cards
+function clearCards(){ cardsEl.innerHTML=''; }
+function makeCard(title, key, summary, details){
+  const c = el('div','card');
+  c.dataset.key = key || '';
+  const h = el('h3'); h.textContent = title;
+  c.appendChild(h);
+  if(summary){
+    const row = el('div','row');
+    const v = el('div','value'); v.textContent = summary;
+    row.appendChild(v);
+    c.appendChild(row);
+  }
+  if(details){
+    const pre = el('pre','monoblock'); pre.textContent = details;
+    c.appendChild(pre);
+  }
+  return c;
+}
+
+function parseAndRender(ws){
+  lastWorldState = ws;
+  clearCards();
+  // Build a list of known sections to render (common keys in WorldState JSON)
+  const sections = [
+    {keyGuess:'SyndicateMissions', title:'Syndicate Missions'},
+    {keyGuess:'CetusCycle', title:'Cetus (Plains)'},
+    {keyGuess:'EarthCycle', title:'Earth Cycle'},
+    {keyGuess:'CambionCycle', title:'Cambion Drift'},
+    {keyGuess:'ActiveMissions', title:'Active Missions / Fissures'},
+    {keyGuess:'VoidTraders', title:'Void Trader'},
+    {keyGuess:'Sorties', title:'Sorties'},
+    {keyGuess:'Alerts', title:'Alerts'},
+    {keyGuess:'Invasions', title:'Invasions'},
+    {keyGuess:'Nightwave', title:'Nightwave'},
+    {keyGuess:'Events', title:'Events'},
+    {keyGuess:'FlashSales', title:'Flash Sales'},
+    {keyGuess:'SyndicateMissions', title:'Syndicate Missions'},
+    {keyGuess:'Railjack', title:'Railjack'},
+    {keyGuess:'Arbitration', title:'Arbitration'},
+    {keyGuess:'ActiveChallenges', title:'Active Challenges'}
   ];
 
-  const grid = document.getElementById('grid');
-  const status = document.getElementById('status');
-  const btnRefresh = document.getElementById('btn-refresh');
-  const btnDebug = document.getElementById('btn-debug');
-  const proxyCheckbox = document.getElementById('use-proxy');
-  const logSnippet = document.getElementById('log-snippet');
-  let lastData = {};
-  let lastRaw = {};
+  // Add all top-level keys that aren't in the list as "Other"
+  const used = new Set(sections.map(s=>s.keyGuess.toLowerCase()));
 
-  function ensureCards(){
-    grid.innerHTML = '';
-    for (const e of endpoints){
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.id = 'card-'+e.id;
-      card.innerHTML = `
-        <div class="title"><div class="name">${e.name}</div><div style="margin-left:auto" class="muted" id="${e.id}-muted"></div></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-          <div class="time" id="${e.id}-time">—</div>
-          <div class="muted" id="${e.id}-eta">—</div>
-        </div>
-        <div class="snippet" id="${e.id}-snippet" style="display:none"></div>`;
-      grid.appendChild(card);
+  for(const s of sections){
+    // find actual key in ws (case-insensitive)
+    let real = null;
+    for(const k in ws){ if(k.toLowerCase()===s.keyGuess.toLowerCase()){ real=k; break; } }
+    if(!real){
+      // try partial contains
+      for(const k in ws){ if(k.toLowerCase().includes(s.keyGuess.toLowerCase())){ real=k; break; } }
     }
-  }
-  ensureCards();
-
-  // fetch that reads text so we can show snippet if not JSON
-  async function fetchNoCache(path, options = {}){
-    const url = HUB + path + (path.includes('?') ? '&' : '?') + '_=' + Date.now();
-    try {
-      const r = await fetch(url, {cache:'no-store', mode:'cors'});
-      const ct = r.headers.get('content-type') || '';
-      const text = await r.text();
-      lastRaw[url] = {status: r.status, statusText: r.statusText, ct, textSnippet: text.slice(0,300)};
-      if (!r.ok) {
-        throw new Error('HTTP '+r.status+' '+r.statusText+' — '+ text.slice(0,300));
-      }
-      // quick heuristic: content-type must be JSON OR text starts with { or [
-      if (!ct.toLowerCase().includes('application/json') && !text.trim().startsWith('{') && !text.trim().startsWith('[')) {
-        throw new Error('Non-JSON response: content-type=' + ct + ' snippet='+ text.slice(0,300));
-      }
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        throw new Error('JSON parse error: ' + e.message + ' — snippet=' + text.slice(0,300));
-      }
-    } catch (err) {
-      throw err;
+    if(real){
+      const item = ws[real];
+      const summary = summarize(item);
+      const details = prettify(item);
+      cardsEl.appendChild(makeCard(s.title, real, summary, details));
     }
   }
 
-  // fallback via public CORS proxy (AllOrigins). Note: public proxy may be rate-limited/unreliable.
-  async function fetchViaProxy(path){
-    const target = HUB + path + (path.includes('?') ? '&' : '?') + '_=' + Date.now();
-    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target);
-    const r = await fetch(proxy, {cache:'no-store', mode:'cors'});
-    const text = await r.text();
-    // AllOrigins returns the raw body; try parse
-    try {
-      return JSON.parse(text);
-    } catch(e) {
-      throw new Error('Proxy returned non-JSON or parse error: ' + e.message + ' — snippet=' + text.slice(0,300));
+  // add remaining keys
+  for(const k in ws){
+    if(used.has(k.toLowerCase())) continue;
+    // skip heavy 'Translations' maybe
+    if(k.toLowerCase().includes('translations')) continue;
+    // make a card for this key
+    try{
+      const item = ws[k];
+      const summary = summarize(item);
+      const details = prettify(item);
+      cardsEl.appendChild(makeCard(k, k, summary, details));
+    }catch(e){}
+  }
+}
+
+// summarize common structures
+function summarize(obj){
+  if(!obj) return '—';
+  if(Array.isArray(obj)) return obj.length + ' items';
+  if(typeof obj === 'object'){
+    // try to find time or short field
+    const d = findDateIn(obj);
+    if(d) return 'Осталось: ' + fmtDuration(toSecondsLeft(d));
+    // find small descriptors
+    if(obj.Active === true) return 'Active';
+    if(obj.Name) return obj.Name;
+    if(obj.Title) return obj.Title;
+    return Object.keys(obj).slice(0,4).join(', ');
+  }
+  return String(obj).slice(0,120);
+}
+function prettify(obj){
+  try { return JSON.stringify(obj, null, 2).slice(0,2000); } catch(e){ return String(obj); }
+}
+
+// fetch worldstate
+async function fetchWorldState(platform){
+  const url = ENDPOINTS[platform] + ((ENDPOINTS[platform].includes('?')? '&' : '?') + '_=' + Date.now());
+  const res = await fetch(url, {cache:'no-store', mode:'cors'});
+  const ct = res.headers.get('content-type') || '';
+  const text = await res.text();
+  if(!res.ok) throw new Error('HTTP '+res.status+' '+res.statusText+'; body: '+text.slice(0,300));
+  // some endpoints may return plain JSON (ok) others might wrap as HTML — try to parse
+  try{
+    const parsed = JSON.parse(text);
+    return parsed;
+  }catch(e){
+    // If it's HTML (starts with <!doctype), then error out — but this should not happen with official endpoints
+    const snippet = text.slice(0,300);
+    throw new Error('Non-JSON response (content-type='+ct+'). Snippet: '+snippet);
+  }
+}
+
+// main update loop
+let updateTimer = null;
+async function updateNow(showDebug=false){
+  const platform = platformSelect.value || 'pc';
+  statusEl.textContent = 'Загрузка... ('+platform.toUpperCase()+')';
+  try{
+    const ws = await fetchWorldState(platform);
+    statusEl.textContent = 'Данные загружены: ' + new Date().toLocaleTimeString();
+    parseAndRender(ws);
+    if(showDebug) console.log('WorldState', ws);
+  }catch(err){
+    console.error('Fetch error', err);
+    statusEl.innerHTML = '<span class="bad">Ошибка: ' + (err.message||err) + '</span>';
+    // show raw snippet if exist
+    const m = String(err.message||'').match(/Snippet:\\s*(.{0,300})/s);
+    if(m){
+      const sn = m[1];
+      // create a bottom debug card
+      const dbg = makeCard('Raw response snippet','debug', 'Non-JSON response', sn);
+      cardsEl.prepend(dbg);
     }
   }
+  // update planet hover panel content if any
+  const pt = $('panel-title');
+  if(pt && lastWorldState) pt.textContent = pt.textContent; // no-op to keep aria-live
+}
 
-  function secondsLeftFrom(obj){
-    if (!obj) return null;
-    const keys = ['expiry','expiryDate','end','EndTime','start','activation','activationTime'];
-    for (const k of keys){
-      if (obj[k]){
-        const d = new Date(obj[k]);
-        if (!isNaN(d)) return Math.max(0, Math.floor((d - Date.now())/1000));
-      }
-    }
-    // try known shapes
-    if (obj.expiry && typeof obj.expiry === 'string'){
-      const d = new Date(obj.expiry);
-      if (!isNaN(d)) return Math.max(0, Math.floor((d - Date.now())/1000));
-    }
-    return null;
-  }
+// init
+buildPlanets();
+platformSelect.addEventListener('change', ()=> { updateNow(); });
+btnRefresh.addEventListener('click', ()=> updateNow());
+btnDebug.addEventListener('click', ()=> { updateNow(true); alert('Debug: смотрите консоль'); });
 
-  function formatTime(s){
-    if (s === null) return '—';
-    const days = Math.floor(s/86400); s%=86400;
-    const hours = Math.floor(s/3600); s%=3600;
-    const mins = Math.floor(s/60); const secs = s%60;
-    const parts = [];
-    if (days) parts.push(days+'d');
-    if (hours) parts.push(hours+'h');
-    if (mins) parts.push(mins+'m');
-    parts.push(secs+'s');
-    return parts.join(' ');
-  }
+// auto update
+updateNow();
+if(updateTimer) clearInterval(updateTimer);
+updateTimer = setInterval(()=> updateNow(), SYNC_MS);
 
-  async function updateOnce(verbose=false){
-    status.textContent = 'Обновление... ' + new Date().toLocaleTimeString();
-    logSnippet.style.display = 'none';
-    const promises = endpoints.map(async e => {
-      const snippetEl = document.getElementById(e.id + '-snippet');
-      snippetEl.style.display = 'none';
-      try{
-        let data;
-        try {
-          data = await fetchNoCache(e.path);
-        } catch (firstErr) {
-          // direct failed — show snippet and optionally try proxy fallback
-          console.warn('Direct fetch failed for', e.path, firstErr && firstErr.message);
-          snippetEl.textContent = String(firstErr.message).slice(0,800);
-          snippetEl.style.display = 'block';
-          if (proxyCheckbox.checked) {
-            status.textContent = 'Direct failed — trying proxy...';
-            data = await fetchViaProxy(e.path);
-          } else {
-            throw firstErr;
-          }
-        }
-        lastData[e.id] = data;
-        const sec = secondsLeftFrom(data);
-        document.getElementById(e.id+'-time').textContent = formatTime(sec);
-        document.getElementById(e.id+'-eta').textContent = sec===null? 'нет данных' : 'осталось';
-        document.getElementById(e.id+'-muted').textContent = verbose ? JSON.stringify(data).slice(0,80) : '';
-        return {id:e.id, ok:true};
-      }catch(err){
-        document.getElementById(e.id+'-time').textContent = 'ошибка';
-        document.getElementById(e.id+'-eta').textContent = (err && err.message) ? err.message.slice(0,120) : 'fetch error';
-        document.getElementById(e.id+'-muted').textContent = '';
-        return {id:e.id, ok:false, err:err};
-      }
-    });
-    const results = await Promise.all(promises);
-    const failed = results.filter(r=>!r.ok).length;
-    status.textContent = `Обновлено: ${new Date().toLocaleTimeString()} — Ошибок: ${failed}`;
-    return results;
-  }
-
-  // first run + timer
-  await updateOnce();
-  let timer = setInterval(()=> updateOnce(), SYNC_MS);
-
-  btnRefresh.addEventListener('click', ()=> updateOnce());
-  btnDebug.addEventListener('click', ()=> {
-    updateOnce(true).then(()=>{
-      alert('Debug: консоль содержит дополнительные данные. Сниппеты показаны в карточках.');
-      console.log('lastData', lastData);
-      console.log('lastRaw (snippets)', lastRaw);
-      // display lastRaw snippet if present
-      const keys = Object.keys(lastRaw);
-      if (keys.length) {
-        logSnippet.style.display = 'block';
-        logSnippet.textContent = 'Последние ответные сниппеты (url -> snippet):\\n' + keys.map(k => k + ' -> ' + JSON.stringify(lastRaw[k]).slice(0,400)).join('\\n\\n');
-      }
-    });
+// parallax mouse effect for planets
+document.addEventListener('mousemove', e=>{
+  const rect = planetsEl.getBoundingClientRect();
+  const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+  const dx = (e.clientX - cx)/rect.width * 40; const dy = (e.clientY - cy)/rect.height * 20;
+  const nodes = planetsEl.querySelectorAll('.planet');
+  nodes.forEach((n,i)=> {
+    const speed = (i+1)/6;
+    n.style.transform = `translate(${dx*speed}px, ${dy*speed}px)`;
   });
+});
 
-  // expose for console quick tests
-  window.__wf = {updateOnce, fetchNoCache, fetchViaProxy};
-})();
+// expose for console
+window.WF = {updateNow, fetchWorldState, ENDPOINTS};
+
 </script>
 </body>
 </html>
