@@ -10,75 +10,83 @@
   --bg1:#021022; --bg2:#071427;
   --panel: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
   --muted:#9fb2cf; --accent:#00b0ff; --accent2:#7f6cff;
-  --radius:12px; --shadow: 0 18px 50px rgba(2,6,23,0.6);
+  --radius:10px; --shadow: 0 14px 40px rgba(2,6,23,0.6);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   color-scheme: dark;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6eef9;-webkit-font-smoothing:antialiased}
-header{position:sticky;top:0;z-index:40;padding:12px 18px;display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,rgba(0,0,0,0.08),transparent);backdrop-filter:blur(6px)}
-.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;box-shadow:var(--shadow)}
-.brand{display:flex;gap:10px;align-items:center}
-nav{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-nav select, nav button{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted);padding:8px 10px;border-radius:10px;cursor:pointer}
-main{max-width:1200px;margin:18px auto;padding:12px}
-.panel{background:var(--panel);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.02)}
-.title{font-size:20px;margin:0 0 6px 0}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6eef9}
+header{
+  position:sticky;top:0;z-index:80;
+  padding:8px 12px;display:flex;align-items:center;gap:10px;
+  background:linear-gradient(180deg,rgba(0,0,0,0.06),transparent);backdrop-filter:blur(6px)
+}
+.logo{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;box-shadow:var(--shadow);font-size:14px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand .title{font-weight:700;font-size:14px}
+.brand .sub{font-size:11px;color:var(--muted)}
+nav{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+nav select, nav button{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted);padding:6px 8px;border-radius:8px;cursor:pointer;font-size:13px}
+nav select{min-width:90px}
+main{max-width:1100px;margin:14px auto;padding:10px}
+.panel{background:var(--panel);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.02)}
+.title{font-size:18px;margin:0 0 6px 0}
 .muted{color:var(--muted);font-size:13px}
 
-/* layout */
-.grid-2{display:grid;grid-template-columns:1fr 420px;gap:18px;align-items:start}
-@media(max-width:980px){ .grid-2{grid-template-columns:1fr} .right{order:-1} }
+/* grid */
+.grid-2{display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:start}
+@media(max-width:940px){ .grid-2{grid-template-columns:1fr} .right{order:-1} }
 
 /* starfield */
-.starfield-wrap{position:relative;border-radius:12px;overflow:hidden;padding:10px}
-#starCanvas{width:100%;height:340px;display:block;border-radius:10px;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(7,10,15,0.9));box-shadow:inset 0 10px 60px rgba(0,0,0,0.4)}
+.starfield-wrap{position:relative;border-radius:10px;overflow:hidden;padding:8px}
+#starCanvas{width:100%;height:320px;display:block;border-radius:8px;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(7,10,15,0.9))}
 .parallax-layer{position:absolute;inset:0;pointer-events:none}
 
 /* cycles */
-.cycles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.cycles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(max-width:700px){ .cycles{grid-template-columns:1fr} }
-.cycle-card{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));border:1px solid rgba(255,255,255,0.02);position:relative;overflow:visible}
-.orb-thumb{width:82px;height:82px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));box-shadow:0 8px 26px rgba(0,0,0,0.4)}
-.cycle-info h3{margin:0;font-size:16px}
-.time{font-weight:800;font-size:18px}
+.cycle-card{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));border:1px solid rgba(255,255,255,0.02);position:relative;overflow:visible}
+.orb-thumb{width:70px;height:70px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));box-shadow:0 8px 20px rgba(0,0,0,0.3)}
+.cycle-info h3{margin:0;font-size:15px}
+.time{font-weight:700;font-size:16px}
 .ends{font-size:12px;color:var(--muted);margin-top:6px}
-.tooltip{position:absolute;left:14px;right:14px;bottom:12px;padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(0,0,0,0.55), rgba(255,255,255,0.01));backdrop-filter: blur(6px);transform:translateY(12px);opacity:0;transition:all .22s;pointer-events:none}
+.tooltip{position:absolute;left:10px;right:10px;bottom:10px;padding:8px;border-radius:8px;background:linear-gradient(180deg, rgba(0,0,0,0.55), rgba(255,255,255,0.01));backdrop-filter: blur(6px);transform:translateY(10px);opacity:0;transition:all .18s;pointer-events:none}
 .cycle-card:hover .tooltip{opacity:1;transform:none}
 
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal.show{opacity:1;pointer-events:auto}
-.modal .box{background:#071124;padding:16px;border-radius:12px;min-width:320px;border:1px solid rgba(255,255,255,0.03)}
-.form-row{display:flex;gap:8px;align-items:center;margin:8px 0}
-input[type="number"], input[type="text"], select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;width:100%}
-.footer{padding:16px;text-align:center;color:var(--muted);font-size:13px;margin-top:18px}
+.modal .box{background:#071124;padding:12px;border-radius:10px;min-width:300px;border:1px solid rgba(255,255,255,0.03)}
+.form-row{display:flex;gap:8px;align-items:center;margin:6px 0}
+input[type="number"], input[type="text"], select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;width:100%;font-size:13px}
+.footer{padding:12px;text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
 
-/* small */
-.monoblock{background:rgba(255,255,255,0.01);padding:8px;border-radius:8px;font-family:monospace;font-size:13px;color:var(--muted);max-height:160px;overflow:auto}
+/* small text */
+.monoblock{background:rgba(255,255,255,0.01);padding:8px;border-radius:8px;font-family:monospace;font-size:12px;color:var(--muted);max-height:140px;overflow:auto}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">WF</div>
-  <div>
-    <div style="font-weight:700">Warframe — Offline Cycles</div>
-    <div class="muted">Autonomous timers — no API. Localizable (EN / RU).</div>
+  <div class="brand">
+    <div class="title">Warframe — Offline Cycles</div>
+    <div class="sub">Autonomous timers • EN / RU</div>
   </div>
 
   <nav>
-    <select id="langSelect" title="Language" aria-label="Language select">
-      <option value="en">English</option>
-      <option value="ru">Русский</option>
+    <select id="langSelect" aria-label="Language">
+      <option value="en">EN</option>
+      <option value="ru">RU</option>
     </select>
-    <select id="platformSelect" title="Platform" aria-label="Platform select" style="min-width:120px">
+    <select id="platformSelect" aria-label="Platform">
       <option value="pc">PC</option>
-      <option value="ps4">PlayStation</option>
+      <option value="ps4">PS4</option>
       <option value="xb1">Xbox</option>
       <option value="swi">Switch</option>
       <option value="mob">Mobile</option>
     </select>
-    <button id="btn-settings">Settings</button>
+    <button id="btn-settings" title="Settings">⚙</button>
   </nav>
 </header>
 
@@ -88,10 +96,10 @@ input[type="number"], input[type="text"], select{padding:8px;border-radius:8px;b
       <div class="panel">
         <h2 class="title" id="title-main">Live cycle dashboard (offline)</h2>
         <div class="muted" id="subtitle">Top: star map. Below: timers for all open locations. Times are computed from UTC anchor (no external API).</div>
-        <div class="cycles" id="cycles"></div>
+        <div class="cycles" id="cycles" aria-live="polite"></div>
       </div>
 
-      <div class="panel" style="margin-top:12px">
+      <div class="panel" style="margin-top:10px">
         <h3 class="title" id="baro-title">Baro Ki'Teer (Void Trader)</h3>
         <div id="baro" class="muted">Set Baro arrival in settings (UTC ISO) or use default 2-week schedule.</div>
       </div>
@@ -100,173 +108,337 @@ input[type="number"], input[type="text"], select{padding:8px;border-radius:8px;b
     <aside class="right panel">
       <h3 class="title" id="map-title">Star map & orbits</h3>
       <div class="muted" id="map-sub">Planets show their current phase. Hover card to see details.</div>
-      <div class="starfield-wrap" style="margin-top:12px;position:relative">
+      <div class="starfield-wrap" style="margin-top:10px;position:relative">
         <canvas id="starCanvas" aria-hidden="true"></canvas>
         <div class="parallax-layer" id="parallaxLayer" aria-hidden="true"></div>
       </div>
-      <div style="margin-top:12px" class="muted small">Last update: <span id="lastSync">—</span> • Interval: <span id="syncInterval">1s</span></div>
+      <div style="margin-top:10px" class="muted small">Last update: <span id="lastSync">—</span> • Interval: <span id="syncInterval">1s</span></div>
     </aside>
   </section>
 </main>
 
-<footer class="footer" id="foot">Autonomous • GitHub Pages friendly • Localized EN/RU</footer>
+<footer class="footer">Autonomous • GitHub Pages friendly • Localized EN/RU</footer>
 
-<!-- settings modal -->
+<!-- settings -->
 <div id="modal" class="modal" aria-hidden="true">
   <div class="box" role="dialog" aria-modal="true">
     <h3 id="settingsTitle">Settings</h3>
     <div class="muted" id="settingsNote">Adjust cycle durations and Baro schedule.</div>
-    <div class="form-row"><label style="min-width:160px">Earth day (hours)</label><input id="cfg-earth-day" type="number" step="0.1" /></div>
-    <div class="form-row"><label style="min-width:160px">Earth night (hours)</label><input id="cfg-earth-night" type="number" step="0.1" /></div>
-    <div class="form-row"><label style="min-width:160px">Cetus day (minutes)</label><input id="cfg-cetus-day" type="number" /></div>
-    <div class="form-row"><label style="min-width:160px">Cetus night (minutes)</label><input id="cfg-cetus-night" type="number" /></div>
-    <div class="form-row"><label style="min-width:160px">Vallis hours (each)</label><input id="cfg-vallis" type="number" step="0.1" /></div>
-    <div class="form-row"><label style="min-width:160px">Cambion minutes (each)</label><input id="cfg-cambion" type="number" /></div>
-    <div class="form-row"><label style="min-width:160px">Baro next (UTC ISO, optional)</label><input id="cfg-baro" type="text" placeholder="2025-10-03T16:00:00Z" /></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+
+    <div class="form-row"><label style="min-width:140px">Earth day (hours)</label><input id="cfg-earth-day" type="number" step="0.1" /></div>
+    <div class="form-row"><label style="min-width:140px">Earth night (hours)</label><input id="cfg-earth-night" type="number" step="0.1" /></div>
+    <div class="form-row"><label style="min-width:140px">Cetus day (minutes)</label><input id="cfg-cetus-day" type="number" /></div>
+    <div class="form-row"><label style="min-width:140px">Cetus night (minutes)</label><input id="cfg-cetus-night" type="number" /></div>
+    <div class="form-row"><label style="min-width:140px">Vallis hours (each)</label><input id="cfg-vallis" type="number" step="0.1" /></div>
+    <div class="form-row"><label style="min-width:140px">Cambion minutes (each)</label><input id="cfg-cambion" type="number" /></div>
+    <div class="form-row"><label style="min-width:140px">Baro next (UTC ISO)</label><input id="cfg-baro" type="text" placeholder="2025-10-03T16:00:00Z" /></div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
       <button id="save-settings">Save</button>
       <button id="close-settings">Close</button>
     </div>
-    <div class="muted" style="margin-top:8px">Tip: If left empty, Baro will follow the default schedule: every 14 days at 16:00 UTC and stays for 48 hours.</div>
+    <div class="muted" style="margin-top:8px">If left empty: Baro every 14 days at 16:00 UTC, stays 48h.</div>
   </div>
 </div>
 
 <script>
-/* Autonomous multi-cycle dashboard with localization EN/RU and Baro schedule.
-   - No external API calls
-   - Anchors are UTC-based (daily reset at midnight UTC)
-   - Baro: every 14 days at 16:00 UTC and lasts 48h
-*/
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Localization dictionary ---
+  const DICT = {
+    en: { title:'Live cycle dashboard (offline)', subtitle:'Top: star map. Below: timers for all open locations. Times are computed from UTC anchor (no external API).', baroTitle:"Baro Ki'Teer (Void Trader)", mapTitle:'Star map & orbits', settingsTitle:'Settings', settingsNote:'Adjust cycle durations and Baro schedule.', save:'Save', close:'Close', tipBaroDefault:'If left empty, Baro will follow the default schedule: every 14 days at 16:00 UTC and stays for 48 hours.', lastUpdate:'Last update', cycles:{ earth:'Earth (Day/Night)', cetus:'Cetus (Plains)', vallis:'Orb Vallis', cambion:'Cambion Drift', duviri:'Duviri', zariman:'Zariman', sorties:'Sorties (simulated)', fissures:'Fissures (simulated)', baro:"Baro Ki'Teer" } },
+    ru: { title:'Дашборд циклов (оффлайн)', subtitle:'Вверху: звездная карта. Ниже: таймеры всех открытых локаций. Время вычисляется от UTC-якоря (без API).', baroTitle:"Baro Ki'Teer (Путешествующий торговец)", mapTitle:'Звездная карта и орбиты', settingsTitle:'Настройки', settingsNote:'Измените длительности циклов и расписание Baro.', save:'Сохранить', close:'Закрыть', tipBaroDefault:'Если пусто — Baro прилетает каждые 14 дней в 16:00 UTC и остается 48 часов.', lastUpdate:'Последнее обновление', cycles:{ earth:'Земля (День/Ночь)', cetus:'Цетус (Равнины)', vallis:'Орб Валлис', cambion:'Камбион Дрифт', duviri:'Дувири', zariman:'Зариман', sorties:'Сорти (эмуляция)', fissures:'Трещины (эмуляция)', baro:"Baro Ki'Teer" } }
+  };
 
-// --------- Localization ---------
-const DICT = {
-  en: {
-    title:'Live cycle dashboard (offline)',
-    subtitle:'Top: star map. Below: timers for all open locations. Times are computed from UTC anchor (no external API).',
-    baroTitle:"Baro Ki'Teer (Void Trader)",
-    mapTitle:'Star map & orbits',
-    settingsTitle:'Settings',
-    settingsNote:'Adjust cycle durations and Baro schedule.',
-    save:'Save', close:'Close',
-    tipBaroDefault:'If left empty, Baro will follow the default schedule: every 14 days at 16:00 UTC and stays for 48 hours.',
-    lastUpdate:'Last update',
-    cycles:{
-      earth:'Earth (Day/Night)',
-      cetus:'Cetus (Plains)',
-      vallis:'Orb Vallis',
-      cambion:'Cambion Drift',
-      duviri:'Duviri',
-      zariman:'Zariman',
-      sorties:'Sorties (simulated)',
-      fissures:'Fissures (simulated)',
-      baro:"Baro Ki'Teer"
-    }
-  },
-  ru: {
-    title:'Дашборд циклов (оффлайн)',
-    subtitle:'Вверху: звездная карта. Ниже: таймеры всех открытых локаций. Время вычисляется от UTC-якоря (без API).',
-    baroTitle:"Baro Ki'Teer (Путешествующий торговец)",
-    mapTitle:'Звездная карта и орбиты',
-    settingsTitle:'Настройки',
-    settingsNote:'Измените длительности циклов и расписание Baro.',
-    save:'Сохранить', close:'Закрыть',
-    tipBaroDefault:'Если пусто — Baro прилетает каждые 14 дней в 16:00 UTC и остается 48 часов.',
-    lastUpdate:'Последнее обновление',
-    cycles:{
-      earth:'Земля (День/Ночь)',
-      cetus:'Цетус (Равнины)',
-      vallis:'Орб Валлис',
-      cambion:'Камбион Дрифт',
-      duviri:'Дувири',
-      zariman:'Зариман',
-      sorties:'Сорти (эмуляция)',
-      fissures:'Трещины (эмуляция)',
-      baro:"Baro Ki'Teer"
+  // --- Config & anchors ---
+  const DEFAULTS = { earth_day_h:4, earth_night_h:4, cetus_day_m:100, cetus_night_m:50, vallis_each_h:6, cambion_each_m:90, baro_next_iso:null };
+  const ANCHORS = { earth_anchor: Date.parse('2025-01-01T00:00:00Z'), cetus_anchor: Date.parse('2025-01-01T00:00:00Z'), vallis_anchor: Date.parse('2025-01-01T00:00:00Z'), cambion_anchor: Date.parse('2025-01-01T00:00:00Z') };
+
+  function loadCfg(){ try{ const r=localStorage.getItem('wf_autocfg'); return r?JSON.parse(r):{...DEFAULTS}; }catch(e){ return {...DEFAULTS}; } }
+  function saveCfg(c){ localStorage.setItem('wf_autocfg', JSON.stringify(c)); }
+  let cfg = loadCfg();
+
+  // --- language ---
+  let LANG = localStorage.getItem('wf_lang') || 'en';
+  const langSelect = document.getElementById('langSelect');
+  langSelect.value = LANG;
+  langSelect.addEventListener('change', e=>{ LANG = e.target.value; localStorage.setItem('wf_lang', LANG); applyLang(); });
+
+  function t(key){
+    const parts = key.split('.');
+    let cur = DICT[LANG];
+    for(const p of parts){ if(cur && p in cur) cur = cur[p]; else return key; }
+    return cur;
+  }
+  function applyLang(){
+    document.getElementById('title-main').textContent = t('title');
+    document.getElementById('subtitle').textContent = t('subtitle');
+    document.getElementById('baro-title').textContent = t('baroTitle');
+    document.getElementById('map-title').textContent = t('mapTitle');
+    document.getElementById('settingsTitle').textContent = t('settingsTitle');
+    document.getElementById('settingsNote').textContent = t('settingsNote');
+    document.getElementById('settingsNote').textContent = t('settingsNote');
+    buildCards(); // refresh card titles
+  }
+  applyLang();
+
+  // --- UI bindings (settings modal) ---
+  const btnSettings = document.getElementById('btn-settings');
+  const modal = document.getElementById('modal');
+  const btnClose = document.getElementById('close-settings');
+  const btnSave = document.getElementById('save-settings');
+
+  btnSettings.addEventListener('click', openSettings);
+  btnClose.addEventListener('click', closeSettings);
+  btnSave.addEventListener('click', ()=>{
+    cfg.earth_day_h = parseFloat(document.getElementById('cfg-earth-day').value) || DEFAULTS.earth_day_h;
+    cfg.earth_night_h = parseFloat(document.getElementById('cfg-earth-night').value) || DEFAULTS.earth_night_h;
+    cfg.cetus_day_m = parseInt(document.getElementById('cfg-cetus-day').value) || DEFAULTS.cetus_day_m;
+    cfg.cetus_night_m = parseInt(document.getElementById('cfg-cetus-night').value) || DEFAULTS.cetus_night_m;
+    cfg.vallis_each_h = parseFloat(document.getElementById('cfg-vallis').value) || DEFAULTS.vallis_each_h;
+    cfg.cambion_each_m = parseInt(document.getElementById('cfg-cambion').value) || DEFAULTS.cambion_each_m;
+    const b = document.getElementById('cfg-baro').value.trim();
+    cfg.baro_next_iso = b? b: null;
+    saveCfg(cfg);
+    closeSettings();
+    buildCards();
+  });
+
+  function openSettings(){
+    document.getElementById('cfg-earth-day').value = cfg.earth_day_h;
+    document.getElementById('cfg-earth-night').value = cfg.earth_night_h;
+    document.getElementById('cfg-cetus-day').value = cfg.cetus_day_m;
+    document.getElementById('cfg-cetus-night').value = cfg.cetus_night_m;
+    document.getElementById('cfg-vallis').value = cfg.vallis_each_h;
+    document.getElementById('cfg-cambion').value = cfg.cambion_each_m;
+    document.getElementById('cfg-baro').value = cfg.baro_next_iso || '';
+    modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
+  }
+  function closeSettings(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); }
+
+  // --- helpers ---
+  function secondsLeftFromAnchor(anchorTs, periodSeconds, nowMs=Date.now()){
+    const elapsed = Math.floor((nowMs - anchorTs)/1000);
+    const pos = ((elapsed % periodSeconds) + periodSeconds) % periodSeconds;
+    const left = periodSeconds - pos;
+    const phaseIndex = Math.floor(pos / (periodSeconds/2));
+    return { pos, left, phaseIndex };
+  }
+  function fmtDurationSeconds(s){
+    if(s===null) return '—';
+    let days=Math.floor(s/86400); s%=86400;
+    let hrs=Math.floor(s/3600); s%=3600;
+    let mins=Math.floor(s/60); let secs=s%60;
+    const parts=[]; if(days) parts.push(days+'d'); if(hrs) parts.push(hrs+'h'); if(mins) parts.push(mins+'m'); parts.push(secs+'s');
+    return parts.join(' ');
+  }
+  function timeHHMMSSFromS(s){
+    const hh=Math.floor(s/3600); const mm=Math.floor((s%3600)/60); const ss=s%60;
+    return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  }
+
+  // --- cycles to render ---
+  const CYCLES = [
+    { id:'earth', nameKey:'cycles.earth', type:'two', getPeriod:()=> (cfg.earth_day_h + cfg.earth_night_h) * 3600, anchor: ANCHORS.earth_anchor },
+    { id:'cetus', nameKey:'cycles.cetus', type:'two', getPeriod:()=> (cfg.cetus_day_m + cfg.cetus_night_m) * 60, anchor: ANCHORS.cetus_anchor },
+    { id:'vallis', nameKey:'cycles.vallis', type:'two', getPeriod:()=> (cfg.vallis_each_h * 3600) * 2, anchor: ANCHORS.vallis_anchor },
+    { id:'cambion', nameKey:'cycles.cambion', type:'two', getPeriod:()=> (cfg.cambion_each_m * 60) * 2, anchor: ANCHORS.cambion_anchor },
+    { id:'duviri', nameKey:'cycles.duviri', type:'dayBased', getPeriod:()=> 24*3600, anchor: ANCHORS.earth_anchor },
+    { id:'zariman', nameKey:'cycles.zariman', type:'dayBased', getPeriod:()=> 24*3600, anchor: ANCHORS.earth_anchor },
+    { id:'sorties', nameKey:'cycles.sorties', type:'event' },
+    { id:'fissures', nameKey:'cycles.fissures', type:'event' },
+    { id:'baro', nameKey:'cycles.baro', type:'baro' }
+  ];
+
+  // --- build cards and per-card logic ---
+  const cyclesEl = document.getElementById('cycles');
+
+  function buildCards(){
+    cyclesEl.innerHTML = '';
+    for(const c of CYCLES){
+      const card = document.createElement('div'); card.className='cycle-card'; card.dataset.key = c.id;
+      const thumbId = 'mini-' + c.id;
+      const title = t(c.nameKey) || c.nameKey;
+      card.innerHTML = `<div class="orb-thumb"><canvas id="${thumbId}" width="86" height="86"></canvas></div>
+                        <div class="cycle-info"><h3>${title}</h3><div class="time" id="time-${c.id}">—</div><div class="ends" id="ends-${c.id}">—</div></div>
+                        <div class="tooltip" id="tip-${c.id}">—</div>`;
+      cyclesEl.appendChild(card);
+      setupCard(c, thumbId);
     }
   }
-};
 
-let LANG = localStorage.getItem('wf_lang') || 'en';
-const langSelect = document.getElementById('langSelect');
-langSelect.value = LANG;
-langSelect.addEventListener('change', e=>{ LANG = e.target.value; localStorage.setItem('wf_lang', LANG); applyLang(); });
+  function setupCard(def, thumbId){
+    const cn = document.getElementById(thumbId);
+    const ctx = cn ? cn.getContext('2d') : null;
 
-function t(key){ const parts=key.split('.'); let cur=DICT[LANG]; for(const p of parts){ if(cur && p in cur) cur=cur[p]; else return key; } return cur; }
-function applyLang(){ document.getElementById('title-main').textContent = t('title'); document.getElementById('subtitle').textContent = t('subtitle'); document.getElementById('baro-title').textContent = t('baroTitle'); document.getElementById('map-title').textContent = t('mapTitle'); document.getElementById('settingsTitle').textContent = t('settingsTitle'); document.getElementById('settingsNote').textContent = t('settingsNote'); document.getElementById('save-settings').textContent = t('save'); document.getElementById('close-settings').textContent = t('close'); document.getElementById('modal').querySelector('.muted').textContent = t('tipBaroDefault'); buildCards(); }
-applyLang();
+    function animate(){
+      const timeEl = document.getElementById('time-'+def.id);
+      const endsEl = document.getElementById('ends-'+def.id);
+      const tipEl = document.getElementById('tip-'+def.id);
 
-// --------- Config and anchors ---------
-const DEFAULTS = { earth_day_h:4, earth_night_h:4, cetus_day_m:100, cetus_night_m:50, vallis_each_h:6, cambion_each_m:90, baro_next_iso: null };
-const ANCHORS = { earth_anchor: Date.parse('2025-01-01T00:00:00Z'), cetus_anchor: Date.parse('2025-01-01T00:00:00Z'), vallis_anchor: Date.parse('2025-01-01T00:00:00Z'), cambion_anchor: Date.parse('2025-01-01T00:00:00Z') };
-function loadCfg(){ try{ const raw=localStorage.getItem('wf_autocfg'); return raw?JSON.parse(raw):{...DEFAULTS}; }catch(e){return{...DEFAULTS};} }
-function saveCfg(cfg){ localStorage.setItem('wf_autocfg', JSON.stringify(cfg)); }
-let cfg = loadCfg();
+      if(def.type === 'two'){
+        const period = Math.max(1, def.getPeriod());
+        const ph = secondsLeftFromAnchor(def.anchor, period);
+        timeEl.textContent = timeHHMMSSFromS(ph.left);
+        const state = ph.phaseIndex === 0 ? (def.id === 'cetus' ? (LANG === 'ru' ? 'День' : 'Day') : (LANG === 'ru' ? 'День' : 'Day')) : (LANG === 'ru' ? 'Ночь' : 'Night');
+        endsEl.textContent = state;
+        tipEl.innerHTML = `${state}<br>Left: ${fmtDurationSeconds(ph.left)}`;
+        drawMini(ctx, period, ph.left, def.id);
+      } else if(def.type === 'dayBased'){
+        const period = def.getPeriod();
+        const ph = secondsLeftFromAnchor(def.anchor, period);
+        // simple day detection by UTC hour (6..18 is day)
+        const hourUTC = new Date().getUTCHours();
+        const isDay = hourUTC >= 6 && hourUTC < 18;
+        const label = isDay ? (LANG === 'ru' ? 'День' : 'Day') : (LANG === 'ru' ? 'Ночь' : 'Night');
+        timeEl.textContent = timeHHMMSSFromS(ph.left);
+        endsEl.textContent = label;
+        tipEl.innerHTML = `${label}<br>Left: ${fmtDurationSeconds(ph.left)}`;
+        drawMini(ctx, period, ph.left, def.id);
+      } else if(def.type === 'event'){
+        timeEl.textContent = '—'; endsEl.textContent = (LANG==='ru' ? 'Событие' : 'Event'); tipEl.textContent = (LANG==='ru' ? 'Эмуляция' : 'Simulated (no API)');
+        drawMini(ctx, 60, 30, def.id);
+      } else if(def.type === 'baro'){
+        // Baro every 14 days at 16:00 UTC, stays 48h; user override allowed
+        let next = null;
+        if(cfg.baro_next_iso){
+          const dt = Date.parse(cfg.baro_next_iso);
+          if(!isNaN(dt)) next = new Date(dt);
+        }
+        if(!next){
+          const ref = Date.parse('2025-01-02T16:00:00Z'); // reference arrival
+          const TWO = 14 * 24 * 3600 * 1000;
+          const now = Date.now();
+          let n = Math.floor((now - ref) / TWO);
+          let candidate = ref + n * TWO;
+          // ensure candidate <= now
+          if(candidate > now) candidate -= TWO;
+          // if candidate window finished, advance
+          if(candidate + 48*3600*1000 < now) {
+            // step forward until candidate+48h >= now
+            while(candidate + 48*3600*1000 < now) candidate += TWO;
+          }
+          // if candidate is now in future but we want next arrival then use candidate
+          next = new Date(candidate);
+          // note: candidate may be past (in window) or next
+          // we'll compute arrival and nextArrival below
+          // to get nextFullArrival (future start) derive:
+        }
+        const arrivalStart = next.getTime();
+        const TWO = 14 * 24 * 3600 * 1000;
+        let arrival = arrivalStart;
+        // If this arrival is in past but its window ended, find next future arrival:
+        if(arrival + 48*3600*1000 < Date.now()){
+          // advance until future
+          while(arrival + 48*3600*1000 < Date.now()) arrival += TWO;
+        }
+        const leave = arrival + 48*3600*1000;
+        const nowt = Date.now();
+        if(nowt < arrival){
+          const left = Math.floor((arrival - nowt)/1000);
+          timeEl.textContent = timeHHMMSSFromS(left); endsEl.textContent = (LANG==='ru' ? 'Прибывает' : 'Arrives');
+          tipEl.innerHTML = `${(LANG==='ru'?'Прибытие':'Arrives')}: ${new Date(arrival).toUTCString()}<br>${(LANG==='ru'?'Окно':'Window')}: 48h`;
+          drawMini(ctx, Math.max(1, Math.floor((arrival-nowt)/1000)), Math.floor((arrival-nowt)/1000), 'baro');
+        } else if(nowt >= arrival && nowt <= leave){
+          const left = Math.floor((leave - nowt)/1000);
+          timeEl.textContent = timeHHMMSSFromS(left); endsEl.textContent = (LANG==='ru' ? 'На месте' : 'On-site');
+          tipEl.innerHTML = `${(LANG==='ru'?'Уходит':'Leaves')}: ${new Date(leave).toUTCString()}`;
+          drawMini(ctx, Math.max(1, Math.floor((leave-arrival)/1000)), left, 'baro');
+        } else {
+          // after window — compute next arrival in future
+          let nextA = arrival;
+          while(nextA <= nowt) nextA += TWO;
+          const left = Math.floor((nextA - nowt)/1000);
+          timeEl.textContent = timeHHMMSSFromS(left); endsEl.textContent = (LANG==='ru' ? 'След. прибытие' : 'Next arrival');
+          tipEl.innerHTML = `${(LANG==='ru'?'Следующее':'Next')}: ${new Date(nextA).toUTCString()}`;
+          drawMini(ctx, Math.max(1, Math.floor((nextA-nowt)/1000)), left, 'baro');
+        }
+      }
+      requestAnimationFrame(animate);
+    } // animate
 
-document.getElementById('btn-settings').addEventListener('click', openSettings);
-document.getElementById('close-settings').addEventListener('click', closeSettings);
-document.getElementById('save-settings').addEventListener('click', ()=>{ cfg.earth_day_h = parseFloat(document.getElementById('cfg-earth-day').value) || DEFAULTS.earth_day_h; cfg.earth_night_h = parseFloat(document.getElementById('cfg-earth-night').value) || DEFAULTS.earth_night_h; cfg.cetus_day_m = parseInt(document.getElementById('cfg-cetus-day').value) || DEFAULTS.cetus_day_m; cfg.cetus_night_m = parseInt(document.getElementById('cfg-cetus-night').value) || DEFAULTS.cetus_night_m; cfg.vallis_each_h = parseFloat(document.getElementById('cfg-vallis').value) || DEFAULTS.vallis_each_h; cfg.cambion_each_m = parseInt(document.getElementById('cfg-cambion').value) || DEFAULTS.cambion_each_m; const b=document.getElementById('cfg-baro').value.trim(); cfg.baro_next_iso = b?b:null; saveCfg(cfg); closeSettings(); buildCards(); });
+    requestAnimationFrame(animate);
+  } // setupCard
 
-function openSettings(){ document.getElementById('cfg-earth-day').value = cfg.earth_day_h; document.getElementById('cfg-earth-night').value = cfg.earth_night_h; document.getElementById('cfg-cetus-day').value = cfg.cetus_day_m; document.getElementById('cfg-cetus-night').value = cfg.cetus_night_m; document.getElementById('cfg-vallis').value = cfg.vallis_each_h; document.getElementById('cfg-cambion').value = cfg.cambion_each_m; document.getElementById('cfg-baro').value = cfg.baro_next_iso || ''; document.getElementById('modal').classList.add('show'); document.getElementById('modal').setAttribute('aria-hidden','false'); }
-function closeSettings(){ document.getElementById('modal').classList.remove('show'); document.getElementById('modal').setAttribute('aria-hidden','true'); }
-
-// --------- Utilities ---------
-function secondsLeftFromAnchor(anchorTs, periodSeconds, nowMs=Date.now()){ const elapsed=Math.floor((nowMs-anchorTs)/1000); const pos=((elapsed%periodSeconds)+periodSeconds)%periodSeconds; const left=periodSeconds-pos; const phaseIndex=Math.floor(pos/(periodSeconds/2)); return {pos,left,phaseIndex}; }
-function fmtDurationSeconds(s){ if(s===null) return '—'; let days=Math.floor(s/86400); s%=86400; let hrs=Math.floor(s/3600); s%=3600; let mins=Math.floor(s/60); let secs=s%60; const parts=[]; if(days) parts.push(days+'d'); if(hrs) parts.push(hrs+'h'); if(mins) parts.push(mins+'m'); parts.push(secs+'s'); return parts.join(' '); }
-function timeHHMMSSFromS(s){ const hh=Math.floor(s/3600); const mm=Math.floor((s%3600)/60); const ss=s%60; return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`; }
-
-// --------- Cycle list ---------
-const CYCLES=[
-  {id:'earth', nameKey:'cycles.earth', type:'two', getPeriod:()=> (cfg.earth_day_h+cfg.earth_night_h)*3600, anchor:ANCHORS.earth_anchor},
-  {id:'cetus', nameKey:'cycles.cetus', type:'two', getPeriod:()=> (cfg.cetus_day_m+cfg.cetus_night_m)*60, anchor:ANCHORS.cetus_anchor},
-  {id:'vallis', nameKey:'cycles.vallis', type:'two', getPeriod:()=> (cfg.vallis_each_h*3600)*2, anchor:ANCHORS.vallis_anchor},
-  {id:'cambion', nameKey:'cycles.cambion', type:'two', getPeriod:()=> (cfg.cambion_each_m*60)*2, anchor:ANCHORS.cambion_anchor},
-  {id:'duviri', nameKey:'cycles.duviri', type:'dayBased', getPeriod:()=>24*3600, anchor:ANCHORS.earth_anchor},
-  {id:'zariman', nameKey:'cycles.zariman', type:'dayBased', getPeriod:()=>24*3600, anchor:ANCHORS.earth_anchor},
-  {id:'sorties', nameKey:'cycles.sorties', type:'event'}, {id:'fissures', nameKey:'cycles.fissures', type:'event'}, {id:'baro', nameKey:'cycles.baro', type:'baro'}
-];
-
-// build UI
-const cyclesEl=document.getElementById('cycles');
-function buildCards(){ cyclesEl.innerHTML=''; for(const c of CYCLES){ const card=document.createElement('div'); card.className='cycle-card'; card.dataset.key=c.id; const thumbId='mini-'+c.id; card.innerHTML=`<div class="orb-thumb"><canvas id="${thumbId}" class="orbit-mini" width="86" height="86"></canvas></div><div class="cycle-info"><h3>${translate(c.nameKey)}</h3><div class="time" id="time-${c.id}">—</div><div class="ends" id="ends-${c.id}">—</div></div><div class="tooltip" id="tip-${c.id}">—</div>`; cyclesEl.appendChild(card); setupCard(c, thumbId);} }
-
-function translate(key){ const parts=key.split('.'); let v=DICT[LANG]; for(const p of parts){ if(v && p in v) v=v[p]; else return key;} return v; }
-
-function setupCard(def, thumbId){
-  const cn=document.getElementById(thumbId); const ctx = cn?cn.getContext('2d'):null;
-  function tick(){
-    const timeEl=document.getElementById('time-'+def.id); const endsEl=document.getElementById('ends-'+def.id); const tipEl=document.getElementById('tip-'+def.id);
-    if(def.type==='two'){ const period=Math.max(1, def.getPeriod()); const ph=secondsLeftFromAnchor(def.anchor, period); timeEl.textContent=timeHHMMSSFromS(ph.left); const state = ph.phaseIndex===0 ? 'Day' : 'Night'; endsEl.textContent=state; tipEl.innerHTML=`${state}<br>Left: ${fmtDurationSeconds(ph.left)}`; drawMini(ctx,period,ph.left,def.id); }
-    else if(def.type==='dayBased'){ const period=def.getPeriod(); const ph=secondsLeftFromAnchor(def.anchor, period); const isDay = ((Math.floor((Date.now()/1000)/3600)%24) >=6 && (Math.floor((Date.now()/1000)/3600)%24) <18); const label=isDay?'Day':'Night'; timeEl.textContent=timeHHMMSSFromS(ph.left); endsEl.textContent=label; tipEl.innerHTML=`${label}<br>Left: ${fmtDurationSeconds(ph.left)}`; drawMini(ctx,period,ph.left,def.id); }
-    else if(def.type==='event'){ timeEl.textContent='—'; endsEl.textContent='Event-like'; tipEl.textContent='Simulated (no API)'; drawMini(ctx,60,30,def.id); }
-    else if(def.type==='baro'){ // baro every 14 days at 16:00 UTC lasts 48h
-      let next=null; if(cfg.baro_next_iso){ const dt=Date.parse(cfg.baro_next_iso); if(!isNaN(dt)) next=new Date(dt); }
-      if(!next){ const ref=Date.parse('2025-01-02T16:00:00Z'); const now=Date.now(); const TWO=14*24*3600*1000; let k=Math.ceil((now-ref)/TWO); let cand=ref; while(cand < now) cand += TWO; next=new Date(cand); }
-      const arrival=next.getTime(); const leave=arrival + 48*3600*1000; const nowt=Date.now();
-      if(nowt < arrival){ const left=Math.floor((arrival-nowt)/1000); timeEl.textContent=timeHHMMSSFromS(left); endsEl.textContent='Arrives'; tipEl.innerHTML=`Arrives: ${new Date(arrival).toUTCString()}<br>Window: 48h`; drawMini(ctx,Math.max(1,Math.floor((arrival-nowt)/1000)),left,'baro'); }
-      else if(nowt>=arrival && nowt<=leave){ const left=Math.floor((leave-nowt)/1000); timeEl.textContent=timeHHMMSSFromS(left); endsEl.textContent='On-site'; tipEl.innerHTML=`Leaves: ${new Date(leave).toUTCString()}`; drawMini(ctx,Math.max(1,Math.floor((leave-arrival)/1000)),left,'baro'); }
-      else { const TWO=14*24*3600*1000; const nextArrival=arrival + Math.ceil((nowt-arrival+1)/TWO)*TWO; const left=Math.floor((nextArrival-nowt)/1000); timeEl.textContent=timeHHMMSSFromS(left); endsEl.textContent='Next arrival'; tipEl.innerHTML=`Next: ${new Date(nextArrival).toUTCString()}`; drawMini(ctx,Math.max(1,Math.floor((nextArrival-nowt)/1000)),left,'baro'); }
-    }
-    requestAnimationFrame(tick);
+  function drawMini(ctx, periodS, leftS, id){
+    if(!ctx) return;
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1; ctx.arc(w/2,h/2,20,0,Math.PI*2); ctx.stroke();
+    const frac = 1 - (leftS / Math.max(1, periodS));
+    const ang = frac * Math.PI*2 - Math.PI/2;
+    const px = w/2 + Math.cos(ang) * 20, py = h/2 + Math.sin(ang) * 20;
+    ctx.beginPath(); ctx.fillStyle = id==='baro' ? 'rgba(255,200,80,0.95)' : 'rgba(0,176,255,0.95)'; ctx.arc(px,py,5,0,Math.PI*2); ctx.fill();
+    ctx.font = '10px Arial'; ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillText(id.toUpperCase(), 6, h-8);
   }
-  requestAnimationFrame(tick);
-}
 
-function drawMini(ctx, periodS, leftS, id){ if(!ctx) return; const w=ctx.canvas.width, h=ctx.canvas.height; ctx.clearRect(0,0,w,h); ctx.beginPath(); ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1; ctx.arc(w/2,h/2,22,0,Math.PI*2); ctx.stroke(); const frac=1-(leftS/Math.max(1,periodS)); const ang=frac*Math.PI*2 - Math.PI/2; const px=w/2+Math.cos(ang)*22, py=h/2+Math.sin(ang)*22; ctx.beginPath(); ctx.fillStyle = id==='baro'?'rgba(255,200,80,0.95)':'rgba(0,176,255,0.95)'; ctx.arc(px,py,6,0,Math.PI*2); ctx.fill(); ctx.font='10px Arial'; ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillText(id.toUpperCase(),6,h-8); }
+  // --- starfield & parallax ---
+  const starCanvas = document.getElementById('starCanvas');
+  const pLayer = document.getElementById('parallaxLayer');
+  const DPR = Math.max(1, window.devicePixelRatio || 1);
 
-// starfield
-const starCanvas=document.getElementById('starCanvas'); const pLayer=document.getElementById('parallaxLayer'); const DPR=Math.max(1,window.devicePixelRatio||1);
-function resize(){ starCanvas.width = starCanvas.clientWidth*DPR; starCanvas.height = starCanvas.clientHeight*DPR; } resize(); window.addEventListener('resize', resize);
-const sctx=starCanvas.getContext('2d'); let stars=[];
-function initStars(){ stars=[]; const w=starCanvas.width,h=starCanvas.height; for(let i=0;i<140;i++) stars.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5*DPR,a:Math.random()*0.9+0.1}); }
-initStars();
-function renderStars(){ const w=starCanvas.width,h=starCanvas.height; sctx.clearRect(0,0,w,h); const g=sctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'rgba(2,6,23,1)'); g.addColorStop(1,'rgba(6,12,24,1)'); sctx.fillStyle=g; sctx.fillRect(0,0,w,h); const cx=w/2,cy=h/2; sctx.beginPath(); sctx.arc(cx,cy,28*DPR,0,Math.PI*2); sctx.fillStyle='rgba(255,200,80,0.06)'; sctx.fill(); stars.forEach(s=>{ s.x+=(Math.random()-0.5)*0.4*DPR; s.y+=(Math.random()-0.5)*0.4*DPR; if(s.x<0) s.x=w; if(s.x>w) s.x=0; if(s.y<0) s.y=h; if(s.y>h) s.y=0; sctx.fillStyle=`rgba(255,255,255,${s.a})`; sctx.fillRect(s.x,s.y,s.r,s.r); }); const defs=[{r:70*DPR,name:'Earth',col:'#7fd6ff'},{r:120*DPR,name:'Cetus',col:'#b6e7ff'},{r:170*DPR,name:'Vallis',col:'#9be8a8'},{r:210*DPR,name:'Cambion',col:'#ffb86b'}]; defs.forEach((pl,i)=>{ let frac=(Date.now()/8000)*(0.1+i*0.02)%1; if(i===0){ const p=secondsLeftFromAnchor(ANCHORS.earth_anchor,(cfg.earth_day_h+cfg.earth_night_h)*3600); frac=1-p.left/((cfg.earth_day_h+cfg.earth_night_h)*3600); } if(i===1){ const p=secondsLeftFromAnchor(ANCHORS.cetus_anchor,(cfg.cetus_day_m+cfg.cetus_night_m)*60); frac=1-p.left/((cfg.cetus_day_m+cfg.cetus_night_m)*60); } if(i===2){ const p=secondsLeftFromAnchor(ANCHORS.vallis_anchor,(cfg.vallis_each_h*3600)*2); frac=1-p.left/((cfg.vallis_each_h*3600)*2); } if(i===3){ const p=secondsLeftFromAnchor(ANCHORS.cambion_anchor,(cfg.cambion_each_m*60)*2); frac=1-p.left/((cfg.cambion_each_m*60)*2); } const angle=frac*Math.PI*2 + (Date.now()/10000)*(0.1+i*0.05); const px=cx+Math.cos(angle)*pl.r, py=cy+Math.sin(angle)*pl.r; sctx.beginPath(); sctx.strokeStyle='rgba(255,255,255,0.03)'; sctx.lineWidth=1; sctx.arc(cx,cy,pl.r,0,Math.PI*2); sctx.stroke(); sctx.beginPath(); sctx.fillStyle=pl.col; sctx.arc(px,py,12*DPR,0,Math.PI*2); sctx.fill(); sctx.font=`${12*DPR}px Arial`; sctx.fillStyle='rgba(255,255,255,0.9)'; sctx.fillText(pl.name,px+16*DPR,py+6*DPR); }); requestAnimationFrame(renderStars); }
-requestAnimationFrame(renderStars);
-document.addEventListener('mousemove', e=>{ const r=starCanvas.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; const dx=(e.clientX-cx)/r.width, dy=(e.clientY-cy)/r.height; pLayer.style.transform = `translate(${dx*20}px, ${dy*20}px)`; });
+  function resizeCanvas(){
+    starCanvas.width = starCanvas.clientWidth * DPR;
+    starCanvas.height = starCanvas.clientHeight * DPR;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  const sctx = starCanvas.getContext('2d');
+  let stars = [];
+  function initStars(){
+    stars = [];
+    const w = starCanvas.width, h = starCanvas.height;
+    for(let i=0;i<120;i++) stars.push({x:Math.random()*w, y:Math.random()*h, r:Math.random()*1.5*DPR, a:Math.random()*0.9+0.1});
+  }
+  initStars();
 
-// main loop
-function updateNow(){ cfg = loadCfg(); document.getElementById('lastSync').textContent = new Date().toLocaleTimeString([], {hour12:false}); buildCards(); }
-updateNow(); setInterval(()=>updateNow(),1000);
-window.WF_OFF={cfg,updateNow};
+  function renderStars(){
+    const w = starCanvas.width, h = starCanvas.height;
+    sctx.clearRect(0,0,w,h);
+    const g = sctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'rgba(2,6,23,1)'); g.addColorStop(1,'rgba(6,12,24,1)');
+    sctx.fillStyle = g; sctx.fillRect(0,0,w,h);
+    const cx = w/2, cy = h/2;
+    sctx.beginPath(); sctx.arc(cx,cy,26*DPR,0,Math.PI*2); sctx.fillStyle='rgba(255,200,80,0.06)'; sctx.fill();
+    stars.forEach(s => { s.x += (Math.random()-0.5)*0.6*DPR; s.y += (Math.random()-0.5)*0.6*DPR; if(s.x<0) s.x=w; if(s.x>w) s.x=0; if(s.y<0) s.y=h; if(s.y>h) s.y=0; sctx.fillStyle = `rgba(255,255,255,${s.a})`; sctx.fillRect(s.x,s.y,s.r,s.r); });
+
+    // planets
+    const defs = [{r:64*DPR,name:'Earth',col:'#7fd6ff'},{r:108*DPR,name:'Cetus',col:'#b6e7ff'},{r:150*DPR,name:'Vallis',col:'#9be8a8'},{r:192*DPR,name:'Cambion',col:'#ffb86b'}];
+    defs.forEach((pl,i)=>{
+      let frac = (Date.now()/8000)*(0.08 + i*0.02) % 1;
+      if(i===0){ const p = secondsLeftFromAnchor(ANCHORS.earth_anchor,(cfg.earth_day_h+cfg.earth_night_h)*3600); frac = 1 - p.left / ((cfg.earth_day_h+cfg.earth_night_h)*3600); }
+      if(i===1){ const p = secondsLeftFromAnchor(ANCHORS.cetus_anchor,(cfg.cetus_day_m+cfg.cetus_night_m)*60); frac = 1 - p.left / ((cfg.cetus_day_m+cfg.cetus_night_m)*60); }
+      if(i===2){ const p = secondsLeftFromAnchor(ANCHORS.vallis_anchor,(cfg.vallis_each_h*3600)*2); frac = 1 - p.left / ((cfg.vallis_each_h*3600)*2); }
+      if(i===3){ const p = secondsLeftFromAnchor(ANCHORS.cambion_anchor,(cfg.cambion_each_m*60)*2); frac = 1 - p.left / ((cfg.cambion_each_m*60)*2); }
+      const angle = frac * Math.PI*2 + (Date.now()/10000)*(0.08 + i*0.04);
+      const px = cx + Math.cos(angle) * pl.r, py = cy + Math.sin(angle) * pl.r;
+      sctx.beginPath(); sctx.strokeStyle='rgba(255,255,255,0.03)'; sctx.lineWidth=1; sctx.arc(cx,cy,pl.r,0,Math.PI*2); sctx.stroke();
+      sctx.beginPath(); sctx.fillStyle = pl.col; sctx.arc(px,py,10*DPR,0,Math.PI*2); sctx.fill();
+      sctx.font = `${10*DPR}px Arial`; sctx.fillStyle='rgba(255,255,255,0.9)'; sctx.fillText(pl.name, px + 14*DPR, py + 4*DPR);
+    });
+
+    requestAnimationFrame(renderStars);
+  }
+  requestAnimationFrame(renderStars);
+
+  document.addEventListener('mousemove', (e) => {
+    const r = starCanvas.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const dx = (e.clientX - cx) / r.width, dy = (e.clientY - cy) / r.height;
+    pLayer.style.transform = `translate(${dx*18}px, ${dy*18}px)`;
+  });
+
+  // --- main loop ---
+  function updateNow(){
+    cfg = loadCfg();
+    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString([], {hour12:false});
+    buildCards();
+  }
+  updateNow();
+  setInterval(updateNow, 1000);
+
+  // expose for debug
+  window.WF_OFF = { cfg, updateNow, loadCfg, saveCfg };
+
+}); // DOMContentLoaded
 </script>
 </body>
 </html>
