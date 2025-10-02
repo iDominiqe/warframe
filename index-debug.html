@@ -3,29 +3,35 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>Debug — Warframe Cycles</title>
+  <title>Debug — Warframe Cycles (fixed)</title>
   <style>body{font-family:Arial,Helvetica,sans-serif;background:#08111a;color:#e6eef8;padding:12px} pre{background:#0b1220;padding:12px;border-radius:8px;overflow:auto}</style>
 </head><body>
-<h2>Debug версия — лог сетевых ошибок</h2>
-<p>Открой DevTools → Console/Network и посмотри ошибки CORS / 404 / 5xx.</p>
+<h2>Debug — подробные ответы</h2>
+<p>Эта страница делает запросы и показывает: HTTP-статус, Content-Type, и первые 1000 символов ответа.</p>
 <pre id="log">Запуск...</pre>
 <script>
 const HUB='https://hub.warframestat.us';
 const paths=['/pc/cetusCycle','/pc/earthCycle','/pc/voidTrader','/pc/fissures'];
 const logEl=document.getElementById('log');
 function log(s){ logEl.textContent += '\\n'+s; console.log(s); }
-async function test(){
+async function test(useProxy=false){
   for (const p of paths){
-    const u = HUB + p + (p.includes('?')? '&' : '?') + '_=' + Date.now();
-    log('Запрос: '+u);
-    try{
-      const r = await fetch(u, {mode:'cors', cache:'no-store'});
-      log('Ответ: '+r.status+' '+r.statusText);
-      try{ const j = await r.json(); log('JSON keys: '+Object.keys(j).join(',')); }catch(e){ log('Не JSON: '+e.message); }
-    }catch(e){ log('Ошибка fetch: '+e.message); }
+    const target = HUB + p + (p.includes('?')? '&' : '?') + '_=' + Date.now();
+    const url = useProxy ? ('https://api.allorigins.win/raw?url=' + encodeURIComponent(target)) : target;
+    log('Запрос: '+url);
+    try {
+      const r = await fetch(url, {cache:'no-store', mode:'cors'});
+      const ct = r.headers.get('content-type') || '';
+      log('Ответ: '+r.status+' '+r.statusText+' — content-type='+ct);
+      const text = await r.text();
+      log('Сниппет: ' + text.slice(0,1000));
+    } catch(e) {
+      log('Ошибка fetch: ' + e.message);
+    }
+    log('---');
   }
 }
-test();
+test(false);
 </script>
 </body>
 </html>
