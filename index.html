@@ -3,141 +3,313 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Warframe — Offline Cycles (Autonomous)</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Warframe WorldState — Cycles & Info</title>
 <style>
 :root{
-  --bg:#061021; --card:#0f1720; --muted:#97a6c1; --accent:#00b0ff; --glass: rgba(255,255,255,0.03);
-  --radius:12px; --gap:14px; --pad:12px; font-family: Inter, Roboto, Arial, sans-serif;
+  --bg:#040812; --card:#0e1420; --muted:#9fb2d3; --accent:#39d0ff;
+  --glass: rgba(255,255,255,0.03);
+  --radius:14px; --gap:12px; --pad:12px; font-family: Inter, Roboto, Arial, sans-serif;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:radial-gradient(ellipse at top left,#07101a 0%, #04060a 60%);color:#e6eef8}
-.wrap{max-width:1200px;margin:14px auto;padding:12px}
-.header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#02050a 0%, #061024 60%);color:#e8f4ff}
+.wrap{max-width:1200px;margin:18px auto;padding:16px}
+.header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .title{font-size:20px;font-weight:700}
-.controls{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.select, .btn {background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px 10px;border-radius:10px;cursor:pointer}
+.controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+.select, .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px 10px;border-radius:10px;cursor:pointer}
 .note{color:var(--muted);font-size:13px;margin-top:6px}
 
-/* Planetarium */
-.planetarium{margin-top:16px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:14px;padding:14px;overflow:hidden;position:relative}
-.stars{position:absolute;inset:0;background-image:radial-gradient(#0f2340 1px, transparent 1px);background-size:120px 120px;opacity:0.06;transform:translateZ(0)}
-.planets{position:relative;display:flex;gap:20px;align-items:center;justify-content:center;padding:30px 10px;min-height:200px}
-.planet{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 6px 20px rgba(0,0,0,0.6);cursor:pointer;transition:transform .22s ease, box-shadow .22s ease;position:relative}
-.planet img{width:68px;height:68px;pointer-events:none;border-radius:50%}
-.planet:hover{transform:translateY(-8px) scale(1.06);box-shadow:0 14px 40px rgba(0,0,0,0.7)}
-.planet .label{position:absolute;bottom:-28px;width:160px;text-align:center;font-size:13px;color:var(--muted);left:50%;transform:translateX(-50%)}
-.panel-info{position:absolute;right:18px;top:14px;background:rgba(0,0,0,0.25);backdrop-filter:blur(6px);padding:10px;border-radius:8px;min-width:220px;border:1px solid rgba(255,255,255,0.03)}
-.panel-info h4{margin:0 0 8px 0;font-size:14px}
-.panel-info .small{font-size:13px;color:var(--muted)}
+/* 3D Planetarium (simple CSS 3D + canvas lighting) */
+.planetarium{margin-top:16px;border-radius:14px;padding:12px;position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+.scene{perspective:1000px;min-height:260px;display:flex;align-items:center;justify-content:center;position:relative;overflow:visible}
+.orbit{position:absolute;border-radius:50%;border:1px dashed rgba(255,255,255,0.03);}
+.planet3d{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;position:absolute;transform-style:preserve-3d;
+  box-shadow: 0 8px 22px rgba(2,6,12,0.6), inset 0 -6px 18px rgba(0,0,0,0.4);
+  transition:transform .3s ease, box-shadow .3s ease;}
+.p-label{position:absolute;bottom:-34px;width:130px;text-align:center;font-size:13px;color:var(--muted);left:50%;transform:translateX(-50%)}
+.planet3d:hover{transform:translateZ(40px) scale(1.08)}
 
-/* Cards */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
-.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,12,0.6);min-height:80px}
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;min-height:90px;box-shadow:0 6px 16px rgba(0,0,0,0.6)}
 .card h3{margin:0 0 8px 0;font-size:16px}
-.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.value{font-weight:700;font-size:16px}
+.row{display:flex;align-items:center;gap:8px}
+.value{font-weight:700;font-size:18px}
 .small{color:var(--muted);font-size:13px}
 
-/* responsive */
-@media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .planet{width:84px;height:84px}.planet img{width:56px;height:56px} }
-@media (max-width:680px){ .controls{width:100%;justify-content:flex-end} .grid{grid-template-columns:1fr} .panel-info{position:static;margin-top:12px} .planets{flex-wrap:wrap} .planet{margin:8px} }
+/* settings modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal.show{opacity:1;pointer-events:auto}
+.modal .panel{background:#071124;padding:16px;border-radius:12px;min-width:320px;border:1px solid rgba(255,255,255,0.04)}
+.form-row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.input, select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;flex:1}
 
 .footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center;padding-bottom:30px}
 
-/* tiny utilities */
-.hidden{display:none}
-.bad{color:#ff8080}
-.good{color:#7fffb0}
-.monoblock{font-family:monospace;font-size:12px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;margin-top:8px;overflow:auto;max-height:140px}
-
+/* responsive */
+@media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .scene{min-height:220px} }
+@media (max-width:680px){ .grid{grid-template-columns:1fr} .controls{width:100%;justify-content:flex-end} .planet3d{width:68px;height:68px} .p-label{width:90px} }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
     <div>
-      <div class="title">Warframe — WorldState Dashboard</div>
-      <div class="note">Live данные с официального WorldState API. Выбери платформу и дождись обновления.</div>
+      <div class="title">Warframe — Offline Cycles (Autonomous)</div>
+      <div class="note">Работает без API. Таймеры базируются на встроённых длительностях. Настройки сохраняются в localStorage.</div>
     </div>
     <div class="controls">
-      <select id="platform" class="select" title="Platform">
-        <option value="pc">PC</option>
-        <option value="ps4">PS4</option>
-        <option value="xb1">Xbox</option>
-        <option value="swi">Switch</option>
-        <option value="mob">Mobile</option>
-      </select>
-      <button id="btn-refresh" class="btn">Обновить</button>
-      <button id="btn-debug" class="btn">Debug</button>
+      <button id="btn-settings" class="btn">Настройки</button>
+      <button id="btn-reset" class="btn">Сбросить настройки</button>
     </div>
   </div>
 
   <section class="planetarium" aria-label="Planetarium">
-    <div class="stars" aria-hidden="true"></div>
-    <div class="planets" id="planets">
-      <!-- Planets inserted by JS -->
+    <div class="scene" id="scene">
+      <!-- orbits + planets go here -->
+      <canvas id="lightfx" style="position:absolute;inset:0;pointer-events:none"></canvas>
     </div>
-    <div class="panel-info" id="panel-info" aria-live="polite">
-      <h4 id="panel-title">Выбери планету</h4>
-      <div class="small" id="panel-desc">Наведи курсор на планету чтобы увидеть текущие циклы / доступные локации</div>
+    <div style="position:absolute;right:14px;top:14px;background:rgba(0,0,0,0.25);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)">
+      <div id="panel-title" style="font-weight:700">Cет-таймеры</div>
+      <div id="panel-sub" class="small">Наведи на планету для деталей.</div>
     </div>
   </section>
 
   <section id="cards" class="grid" aria-live="polite">
-    <!-- cards injected here -->
+    <!-- cards inserted here -->
   </section>
 
-  <div class="footer" id="status">Статус: ждём загрузки...</div>
+  <div class="footer" id="status">Статус: готово.</div>
+</div>
+
+<!-- settings modal -->
+<div id="modal" class="modal" role="dialog" aria-hidden="true">
+  <div class="panel">
+    <h3>Настройки автономных циклов</h3>
+    <div class="form-row"><label style="min-width:130px" class="small">Earth day (hours)</label><input id="cfg-earth-day" class="input" type="number" step="0.1" /></div>
+    <div class="form-row"><label style="min-width:130px" class="small">Earth night (hours)</label><input id="cfg-earth-night" class="input" type="number" step="0.1" /></div>
+    <div class="form-row"><label class="small">Cetus day (minutes)</label><input id="cfg-cetus-day" class="input" type="number" /></div>
+    <div class="form-row"><label class="small">Cetus night (minutes)</label><input id="cfg-cetus-night" class="input" type="number" /></div>
+    <div class="form-row"><label class="small">Cambion cycle (minutes each)</label><input id="cfg-cambion" class="input" type="number" /></div>
+    <div class="form-row"><label class="small">Vallis (hours each)</label><input id="cfg-vallis" class="input" type="number" /></div>
+    <div class="form-row"><label class="small">Baro next arrival (ISO UTC)</label><input id="cfg-baro" class="input" type="text" placeholder="2025-10-03T12:00:00Z" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+      <button id="save-settings" class="btn">Сохранить</button>
+      <button id="close-settings" class="btn">Закрыть</button>
+    </div>
+    <div class="small" style="margin-top:8px;color:var(--muted)">Примечание: время Baro можно установить вручную. Скрипт будет считать обратный отсчет.</div>
+  </div>
 </div>
 
 <script>
-/*
-  Single-file WorldState dashboard.
-  - Uses official endpoints per platform provided by user.
-  - Parses many known sections and displays timers.
-  - Top: planetarium with planets (hover shows quick info).
-  - Bottom: cards with parsed sections from WorldState JSON.
-*/
-
-const ENDPOINTS = {
-  pc: 'https://content.warframe.com/dynamic/worldState.php',
-  ps4: 'https://content-ps4.warframe.com/dynamic/worldState.php',
-  xb1: 'https://content-xb1.warframe.com/dynamic/worldState.php',
-  swi: 'https://content-swi.warframe.com/dynamic/worldState.php',
-  mob: 'https://content-mob.warframe.com/dynamic/worldState.php'
+// Autonomous cycles defaults (can be adjusted by user)
+const DEFAULTS = {
+  earth_day_h:4, earth_night_h:4,
+  cetus_day_m:100, cetus_night_m:50,
+  cambion_each_m:90,
+  vallis_each_h:6,
+  baro_next_iso: null // user set
 };
 
-const SYNC_MS = 30000; // 30s
-const planetsConfig = [
-  {id:'earth', name:'Earth', keyMatches: ['EarthCycle','earthCycle']},
-  {id:'cetus', name:'Cetus', keyMatches: ['CetusCycle','cetusCycle','OstronCycle','cetus']},
-  {id:'cambion', name:'Cambion Drift', keyMatches: ['CambionCycle','cambionCycle']},
-  {id:'veil', name:'Veil', keyMatches: ['VeilCycle','veilCycle']},
-  {id:'plains', name:'Plains (Cetus)', keyMatches: ['CetusCycle','plainsCycle']},
-  {id:'rotation', name:'Fissures/Events', keyMatches: ['ActiveMissions','ActiveFissures','Fissures','fissures']}
+// utilities
+const qs = (s)=>document.querySelector(s);
+const el = (t,cls)=>{const d=document.createElement(t); if(cls) d.className=cls; return d; };
+const storage = window.localStorage;
+function loadCfg(){ try{ const raw = storage.getItem('wf_cfg'); return raw? JSON.parse(raw): {...DEFAULTS}; }catch(e){ return {...DEFAULTS}; } }
+function saveCfg(cfg){ storage.setItem('wf_cfg', JSON.stringify(cfg)); }
+function resetCfg(){ storage.removeItem('wf_cfg'); location.reload(); }
+
+// cycles logic: compute current phase and seconds left from epoch offset
+function phaseFromCycle(startTs, periodSeconds, nowTs){
+  // startTs = timestamp when a known phase boundary occurred (e.g., phase 0 start)
+  // we compute seconds since start, mod period
+  const s = Math.floor((nowTs - startTs) / 1000);
+  const pos = ((s % periodSeconds) + periodSeconds) % periodSeconds;
+  const left = periodSeconds - pos;
+  const phaseIndex = Math.floor(pos / (periodSeconds / 2)); // 0 or 1 for two-phase cycles
+  return {pos, left, phaseIndex};
+}
+
+// default anchor times (pick deterministic anchors so everyone's client syncs phases similarly)
+// We'll use static anchored UTC times (these are arbitrary but consistent)
+const ANCHORS = {
+  earth_anchor: Date.parse('2025-01-01T00:00:00Z'), // Earth day start at this anchor
+  cetus_anchor: Date.parse('2025-01-01T00:00:00Z'),
+  cambion_anchor: Date.parse('2025-01-01T00:00:00Z'),
+  vallis_anchor: Date.parse('2025-01-01T00:00:00Z')
+};
+
+// render UI
+const scene = qs('#scene');
+const canvas = qs('#lightfx');
+const ctx = canvas.getContext('2d');
+const panelTitle = qs('#panel-title');
+const panelSub = qs('#panel-sub');
+const cards = qs('#cards');
+const status = qs('#status');
+const modal = qs('#modal');
+const btnSettings = qs('#btn-settings');
+const btnReset = qs('#btn-reset');
+const btnSave = qs('#save-settings');
+const btnClose = qs('#close-settings');
+
+let cfg = loadCfg();
+
+// init modal inputs
+function populateSettings(){
+  qs('#cfg-earth-day').value = cfg.earth_day_h;
+  qs('#cfg-earth-night').value = cfg.earth_night_h;
+  qs('#cfg-cetus-day').value = cfg.cetus_day_m;
+  qs('#cfg-cetus-night').value = cfg.cetus_night_m;
+  qs('#cfg-cambion').value = cfg.cambion_each_m;
+  qs('#cfg-vallis').value = cfg.vallis_each_h;
+  qs('#cfg-baro').value = cfg.baro_next_iso || '';
+}
+
+// event handlers
+btnSettings.addEventListener('click', ()=>{ populateSettings(); modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); });
+btnClose.addEventListener('click', ()=>{ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); });
+btnReset.addEventListener('click', ()=>{ if(confirm('Сбросить настройки до стандартных?')) resetCfg(); });
+btnSave.addEventListener('click', ()=>{
+  cfg.earth_day_h = parseFloat(qs('#cfg-earth-day').value) || DEFAULTS.earth_day_h;
+  cfg.earth_night_h = parseFloat(qs('#cfg-earth-night').value) || DEFAULTS.earth_night_h;
+  cfg.cetus_day_m = parseInt(qs('#cfg-cetus-day').value) || DEFAULTS.cetus_day_m;
+  cfg.cetus_night_m = parseInt(qs('#cfg-cetus-night').value) || DEFAULTS.cetus_night_m;
+  cfg.cambion_each_m = parseInt(qs('#cfg-cambion').value) || DEFAULTS.cambion_each_m;
+  cfg.vallis_each_h = parseFloat(qs('#cfg-vallis').value) || DEFAULTS.vallis_each_h;
+  const baroVal = qs('#cfg-baro').value.trim();
+  cfg.baro_next_iso = baroVal? baroVal : null;
+  saveCfg(cfg);
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  updateNow();
+});
+
+// build 3D-like planets and orbits
+const planetDefs = [
+  {id:'earth', name:'Earth', size:96, orbit:220},
+  {id:'cetus', name:'Cetus', size:84, orbit:140},
+  {id:'vallis', name:'Vallis', size:76, orbit:80},
+  {id:'cambion', name:'Cambion', size:72, orbit:40},
+  {id:'baro', name:'Baro', size:64, orbit:0}
 ];
 
-// helpers
-function $(id){return document.getElementById(id)}
-function el(tag, cls){ const d=document.createElement(tag); if(cls) d.className=cls; return d; }
-function now(){ return Date.now(); }
-function tryGet(obj, keys){ if(!obj) return undefined; for(const k of keys){ if(k in obj) return obj[k]; if(k.toLowerCase() in obj) return obj[k.toLowerCase()]; } return undefined; }
-function findDateIn(obj){
-  if(!obj) return null;
-  const tryKeys = ['expiry','end','EndTime','activation','Activation','activationDate','expiryDate','ActivationTime','ExpiryTime','start','startString'];
-  for(const k of tryKeys){ if(obj[k]){ const d=new Date(obj[k]); if(!isNaN(d)) return d; } }
-  // search nested primitives
-  try{
-    const txt = JSON.stringify(obj);
-    const m = txt.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
-    if(m) return new Date(m[0]);
-  }catch(e){}
-  return null;
+function makePlanetNode(def, angleDeg){
+  const orbit = el('div','orbit');
+  orbit.style.width = (def.orbit*2)+'px';
+  orbit.style.height = (def.orbit*2)+'px';
+  orbit.style.left = '50%'; orbit.style.top = '50%';
+  orbit.style.transform = 'translate(-50%,-50%)';
+  orbit.style.zIndex = 0;
+  scene.appendChild(orbit);
+
+  const p = el('div','planet3d');
+  p.style.width = def.size + 'px'; p.style.height = def.size + 'px';
+  p.style.left = '50%'; p.style.top = '50%';
+  p.style.transform = `translate(-50%,-50%) rotateY(0deg) translateX(${def.orbit}px) rotateZ(${angleDeg}deg)`;
+  p.dataset.pid = def.id;
+  p.innerHTML = `<div style="transform:translateZ(12px);">${def.name.charAt(0)}</div><div class="p-label">${def.name}</div>`;
+  p.addEventListener('mouseenter', ()=> showPlanetInfo(def.id));
+  scene.appendChild(p);
+  return {orbit, node:p};
 }
-function toSecondsLeft(d){ if(!d) return null; const s = Math.floor((d - Date.now())/1000); return s>0? s:0; }
+
+const nodes = {};
+planetDefs.forEach((d,i)=> {
+  nodes[d.id] = makePlanetNode(d, i*45);
+});
+
+// resize canvas
+function resizeCanvas(){
+  canvas.width = scene.clientWidth;
+  canvas.height = scene.clientHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// simple light FX
+function drawLight(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const g = ctx.createRadialGradient(canvas.width*0.75, canvas.height*0.25, 10, canvas.width*0.75, canvas.height*0.25, Math.max(canvas.width, canvas.height));
+  g.addColorStop(0, 'rgba(57,208,255,0.06)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+drawLight();
+
+// show planet info
+function showPlanetInfo(id){
+  panelTitle.textContent = id.charAt(0).toUpperCase() + id.slice(1);
+  updateNow(); // refresh so panel shows current values
+}
+
+// compute timers and render cards
+function buildCards(data){
+  cards.innerHTML = '';
+  // Earth
+  const earthPeriod = (cfg.earth_day_h + cfg.earth_night_h) * 3600;
+  const earthAnchor = ANCHORS.earth_anchor;
+  const ePhase = phaseFromCycle(earthAnchor, earthPeriod, Date.now());
+  const eIsDay = (ePhase.phaseIndex === 0);
+  const ce = makeCard('Earth', eIsDay? 'Day':'Night', fmtDuration(ePhase.left));
+  cards.appendChild(ce);
+
+  // Cetus
+  const cetusPeriod = (cfg.cetus_day_m + cfg.cetus_night_m) * 60;
+  const cPhase = phaseFromCycle(ANCHORS.cetus_anchor, cetusPeriod, Date.now());
+  const cIsDay = (cPhase.phaseIndex === 0);
+  cards.appendChild(makeCard('Cetus (Plains)', cIsDay? 'Day (Plains open)':'Night (Plains closed)', fmtDuration(cPhase.left)));
+
+  // Cambion Drift (Deimos)
+  const cambionPeriod = cfg.cambion_each_m * 60 * 2; // two phases
+  const camPhase = phaseFromCycle(ANCHORS.cambion_anchor, cambionPeriod, Date.now());
+  const camName = camPhase.phaseIndex === 0 ? 'Fass (??)':'Vome (??)';
+  cards.appendChild(makeCard('Cambion Drift', camName, fmtDuration(camPhase.left)));
+
+  // Vallis (Orb Vallis)
+  const vallisPeriod = cfg.vallis_each_h * 3600 * 2;
+  const vPhase = phaseFromCycle(ANCHORS.vallis_anchor, vallisPeriod, Date.now());
+  const vName = vPhase.phaseIndex===0 ? 'Day' : 'Night';
+  cards.appendChild(makeCard('Orb Vallis', vName, fmtDuration(vPhase.left)));
+
+  // Baro Ki'Teer arrival (user-managed)
+  let baroText = 'Не задан';
+  if(cfg.baro_next_iso){
+    const dt = Date.parse(cfg.baro_next_iso);
+    if(!isNaN(dt)){
+      const left = Math.max(0, Math.floor((dt - Date.now())/1000));
+      baroText = left>0 ? 'Прибудет через ' + fmtDuration(left) : 'Сейчас / на месте';
+    } else baroText = 'Неверный формат даты';
+  }
+  cards.appendChild(makeCard('Baro Ki\\'Teer', 'Next arrival', baroText));
+
+  // Local time card
+  cards.appendChild(makeCard('Local time (UTC)', new Date().toISOString(), new Date().toString()));
+
+  // settings summary
+  cards.appendChild(makeCard('Настройки (сохранено)', '', JSON.stringify(cfg, null, 2)));
+
+  // simple legend
+  cards.appendChild(makeCard('Примечание', '', 'Все циклы работают автономно. Для Baro установи точное время прибытия (UTC ISO) в Настройках.'));
+}
+
+function makeCard(title, subtitle, value){
+  const c = el('div','card');
+  const h = el('h3'); h.textContent = title;
+  c.appendChild(h);
+  if(subtitle){
+    const r = el('div','row'); const s = el('div','small'); s.textContent = subtitle; r.appendChild(s); c.appendChild(r);
+  }
+  if(value){
+    const pre = el('pre','monoblock'); pre.textContent = value; c.appendChild(pre);
+  }
+  return c;
+}
+
 function fmtDuration(s){
   if(s===null) return '—';
   let days=Math.floor(s/86400); s%=86400;
@@ -146,249 +318,76 @@ function fmtDuration(s){
   const parts=[]; if(days) parts.push(days+'d'); if(hrs) parts.push(hrs+'h'); if(mins) parts.push(mins+'m'); parts.push(secs+'s'); return parts.join(' ');
 }
 
-// UI setup
-const planetsEl = $('planets');
-const cardsEl = $('cards');
-const statusEl = $('status');
-const platformSelect = $('platform');
-const btnRefresh = $('btn-refresh');
-const btnDebug = $('btn-debug');
-
-// create planet DOM elements
-function buildPlanets(){
-  planetsEl.innerHTML='';
-  for(const p of planetsConfig){
-    const node = el('div','planet');
-    node.dataset.pid = p.id;
-    node.innerHTML = `<img src="data:image/svg+xml;utf8,${encodeURIComponent(makePlanetSVG(p.name[0]))}" alt="${p.name}"><div class="label">${p.name}</div>`;
-    node.addEventListener('mouseenter', ()=> onPlanetHover(p));
-    node.addEventListener('click', ()=> onPlanetClick(p));
-    planetsEl.appendChild(node);
-  }
-}
-function makePlanetSVG(letter){
-  // simple circle icon svg with letter to avoid external assets
-  return `
-  <svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'>
-    <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%2300b0ff'/><stop offset='1' stop-color='%231080ff'/></linearGradient></defs>
-    <rect width='120' height='120' rx='60' fill='url(%23g)' opacity='0.12'/>
-    <circle cx='60' cy='60' r='44' fill='url(%23g)' opacity='0.22' />
-    <text x='60' y='72' font-family='Arial' font-size='44' fill='white' text-anchor='middle' font-weight='700'>${letter}</text>
-  </svg>`;
+// main update
+function updateNow(){
+  // ensure cfg loaded
+  cfg = loadCfg();
+  buildCards();
+  status.textContent = 'Обновлено: ' + new Date().toLocaleString();
+  drawLight();
+  // update planet labels with small indicators
+  updatePlanetVisuals();
 }
 
-// planet interactions
-let lastWorldState = null;
-function onPlanetHover(p){
-  const title = $('panel-title');
-  const desc = $('panel-desc');
-  title.textContent = p.name;
-  // try to find a matching key in lastWorldState
-  if(!lastWorldState){ desc.textContent = 'Нет данных — подождите обновления.'; return; }
-  let info = null;
-  for(const key of p.keyMatches){
-    if(lastWorldState[key] !== undefined){
-      info = lastWorldState[key]; break;
+// update planet visuals based on cycles
+function updatePlanetVisuals(){
+  const now = Date.now();
+  // Earth
+  const earthPeriod = (cfg.earth_day_h + cfg.earth_night_h) * 3600;
+  const ePhase = phaseFromCycle(ANCHORS.earth_anchor, earthPeriod, now);
+  const eLabel = ePhase.phaseIndex===0 ? 'Day' : 'Night';
+  setPlanetState('earth', eLabel, ePhase.left);
+
+  // Cetus
+  const cetusPeriod = (cfg.cetus_day_m + cfg.cetus_night_m) * 60;
+  const cPhase = phaseFromCycle(ANCHORS.cetus_anchor, cetusPeriod, now);
+  setPlanetState('cetus', cPhase.phaseIndex===0 ? 'Day' : 'Night', cPhase.left);
+
+  // Cambion
+  const cambionPeriod = cfg.cambion_each_m * 60 * 2;
+  const camPhase = phaseFromCycle(ANCHORS.cambion_anchor, cambionPeriod, now);
+  setPlanetState('cambion', camPhase.phaseIndex===0 ? 'Phase A' : 'Phase B', camPhase.left);
+
+  // Vallis
+  const vallisPeriod = cfg.vallis_each_h * 3600 * 2;
+  const vPhase = phaseFromCycle(ANCHORS.vallis_anchor, vallisPeriod, now);
+  setPlanetState('vallis', vPhase.phaseIndex===0 ? 'Day' : 'Night', vPhase.left);
+
+  // Baro label
+  const baroNode = nodes['baro'].node;
+  if(cfg.baro_next_iso){
+    const dt = Date.parse(cfg.baro_next_iso);
+    if(!isNaN(dt)){
+      const left = Math.max(0, Math.floor((dt - Date.now())/1000));
+      baroNode.querySelector('.p-label').textContent = left>0 ? 'Baro in ' + fmtDuration(left) : 'Baro: here!';
+      baroNode.style.background = left>0 ? 'linear-gradient(180deg,#2b3b4a,#163042)' : 'linear-gradient(180deg,#ffcc77,#ff9966)';
+    } else {
+      baroNode.querySelector('.p-label').textContent = 'Baro: invalid';
     }
-    // also scan keys case-insensitively
-    for(const k in lastWorldState){
-      if(k.toLowerCase()===key.toLowerCase()){ info = lastWorldState[k]; break; }
-    }
-    if(info) break;
-  }
-  if(!info){ desc.textContent = 'Данных для этой области не найдено.'; return; }
-  // attempt to extract time info or status
-  const dt = findDateIn(info);
-  if(dt){ desc.innerHTML = `<div class="small">Осталось: <strong>${fmtDuration(toSecondsLeft(dt))}</strong></div>`; }
-  else {
-    desc.innerHTML = `<div class="small">Info: <pre class="monoblock">${JSON.stringify(info).slice(0,300)}</pre></div>`;
+  } else {
+    baroNode.querySelector('.p-label').textContent = 'Baro';
   }
 }
 
-function onPlanetClick(p){
-  // scroll to card for that section if exists
-  const targetKeys = p.keyMatches;
-  const cards = document.querySelectorAll('.card');
-  for(const c of cards){
-    const ck = c.dataset.key;
-    if(!ck) continue;
-    for(const k of targetKeys){
-      if(ck.toLowerCase().includes(k.toLowerCase())){
-        c.scrollIntoView({behavior:'smooth', block:'center'});
-        c.animate([{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:300});
-        return;
-      }
-    }
+// visual helper
+function setPlanetState(id, state, leftSeconds){
+  const node = nodes[id].node;
+  const label = node.querySelector('.p-label');
+  label.textContent = `${nodes[id].node.dataset.pid.toUpperCase()}: ${state} — ${fmtDuration(leftSeconds)}`;
+  // color by state
+  if(state.toLowerCase().includes('day') || state.toLowerCase().includes('open')){
+    node.style.background = 'linear-gradient(180deg,#1bb7ff,#0b6fbf)';
+  } else {
+    node.style.background = 'linear-gradient(180deg,#2b2f46,#15172a)';
   }
 }
 
-// parsing worldstate and rendering cards
-function clearCards(){ cardsEl.innerHTML=''; }
-function makeCard(title, key, summary, details){
-  const c = el('div','card');
-  c.dataset.key = key || '';
-  const h = el('h3'); h.textContent = title;
-  c.appendChild(h);
-  if(summary){
-    const row = el('div','row');
-    const v = el('div','value'); v.textContent = summary;
-    row.appendChild(v);
-    c.appendChild(row);
-  }
-  if(details){
-    const pre = el('pre','monoblock'); pre.textContent = details;
-    c.appendChild(pre);
-  }
-  return c;
-}
-
-function parseAndRender(ws){
-  lastWorldState = ws;
-  clearCards();
-  // Build a list of known sections to render (common keys in WorldState JSON)
-  const sections = [
-    {keyGuess:'SyndicateMissions', title:'Syndicate Missions'},
-    {keyGuess:'CetusCycle', title:'Cetus (Plains)'},
-    {keyGuess:'EarthCycle', title:'Earth Cycle'},
-    {keyGuess:'CambionCycle', title:'Cambion Drift'},
-    {keyGuess:'ActiveMissions', title:'Active Missions / Fissures'},
-    {keyGuess:'VoidTraders', title:'Void Trader'},
-    {keyGuess:'Sorties', title:'Sorties'},
-    {keyGuess:'Alerts', title:'Alerts'},
-    {keyGuess:'Invasions', title:'Invasions'},
-    {keyGuess:'Nightwave', title:'Nightwave'},
-    {keyGuess:'Events', title:'Events'},
-    {keyGuess:'FlashSales', title:'Flash Sales'},
-    {keyGuess:'SyndicateMissions', title:'Syndicate Missions'},
-    {keyGuess:'Railjack', title:'Railjack'},
-    {keyGuess:'Arbitration', title:'Arbitration'},
-    {keyGuess:'ActiveChallenges', title:'Active Challenges'}
-  ];
-
-  // Add all top-level keys that aren't in the list as "Other"
-  const used = new Set(sections.map(s=>s.keyGuess.toLowerCase()));
-
-  for(const s of sections){
-    // find actual key in ws (case-insensitive)
-    let real = null;
-    for(const k in ws){ if(k.toLowerCase()===s.keyGuess.toLowerCase()){ real=k; break; } }
-    if(!real){
-      // try partial contains
-      for(const k in ws){ if(k.toLowerCase().includes(s.keyGuess.toLowerCase())){ real=k; break; } }
-    }
-    if(real){
-      const item = ws[real];
-      const summary = summarize(item);
-      const details = prettify(item);
-      cardsEl.appendChild(makeCard(s.title, real, summary, details));
-    }
-  }
-
-  // add remaining keys
-  for(const k in ws){
-    if(used.has(k.toLowerCase())) continue;
-    // skip heavy 'Translations' maybe
-    if(k.toLowerCase().includes('translations')) continue;
-    // make a card for this key
-    try{
-      const item = ws[k];
-      const summary = summarize(item);
-      const details = prettify(item);
-      cardsEl.appendChild(makeCard(k, k, summary, details));
-    }catch(e){}
-  }
-}
-
-// summarize common structures
-function summarize(obj){
-  if(!obj) return '—';
-  if(Array.isArray(obj)) return obj.length + ' items';
-  if(typeof obj === 'object'){
-    // try to find time or short field
-    const d = findDateIn(obj);
-    if(d) return 'Осталось: ' + fmtDuration(toSecondsLeft(d));
-    // find small descriptors
-    if(obj.Active === true) return 'Active';
-    if(obj.Name) return obj.Name;
-    if(obj.Title) return obj.Title;
-    return Object.keys(obj).slice(0,4).join(', ');
-  }
-  return String(obj).slice(0,120);
-}
-function prettify(obj){
-  try { return JSON.stringify(obj, null, 2).slice(0,2000); } catch(e){ return String(obj); }
-}
-
-// fetch worldstate
-async function fetchWorldState(platform){
-  const url = ENDPOINTS[platform] + ((ENDPOINTS[platform].includes('?')? '&' : '?') + '_=' + Date.now());
-  const res = await fetch(url, {cache:'no-store', mode:'cors'});
-  const ct = res.headers.get('content-type') || '';
-  const text = await res.text();
-  if(!res.ok) throw new Error('HTTP '+res.status+' '+res.statusText+'; body: '+text.slice(0,300));
-  // some endpoints may return plain JSON (ok) others might wrap as HTML — try to parse
-  try{
-    const parsed = JSON.parse(text);
-    return parsed;
-  }catch(e){
-    // If it's HTML (starts with <!doctype), then error out — but this should not happen with official endpoints
-    const snippet = text.slice(0,300);
-    throw new Error('Non-JSON response (content-type='+ct+'). Snippet: '+snippet);
-  }
-}
-
-// main update loop
-let updateTimer = null;
-async function updateNow(showDebug=false){
-  const platform = platformSelect.value || 'pc';
-  statusEl.textContent = 'Загрузка... ('+platform.toUpperCase()+')';
-  try{
-    const ws = await fetchWorldState(platform);
-    statusEl.textContent = 'Данные загружены: ' + new Date().toLocaleTimeString();
-    parseAndRender(ws);
-    if(showDebug) console.log('WorldState', ws);
-  }catch(err){
-    console.error('Fetch error', err);
-    statusEl.innerHTML = '<span class="bad">Ошибка: ' + (err.message||err) + '</span>';
-    // show raw snippet if exist
-    const m = String(err.message||'').match(/Snippet:\\s*(.{0,300})/s);
-    if(m){
-      const sn = m[1];
-      // create a bottom debug card
-      const dbg = makeCard('Raw response snippet','debug', 'Non-JSON response', sn);
-      cardsEl.prepend(dbg);
-    }
-  }
-  // update planet hover panel content if any
-  const pt = $('panel-title');
-  if(pt && lastWorldState) pt.textContent = pt.textContent; // no-op to keep aria-live
-}
-
-// init
-buildPlanets();
-platformSelect.addEventListener('change', ()=> { updateNow(); });
-btnRefresh.addEventListener('click', ()=> updateNow());
-btnDebug.addEventListener('click', ()=> { updateNow(true); alert('Debug: смотрите консоль'); });
-
-// auto update
+// periodic tick
 updateNow();
-if(updateTimer) clearInterval(updateTimer);
-updateTimer = setInterval(()=> updateNow(), SYNC_MS);
+setInterval(updateNow, 1000);
 
-// parallax mouse effect for planets
-document.addEventListener('mousemove', e=>{
-  const rect = planetsEl.getBoundingClientRect();
-  const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
-  const dx = (e.clientX - cx)/rect.width * 40; const dy = (e.clientY - cy)/rect.height * 20;
-  const nodes = planetsEl.querySelectorAll('.planet');
-  nodes.forEach((n,i)=> {
-    const speed = (i+1)/6;
-    n.style.transform = `translate(${dx*speed}px, ${dy*speed}px)`;
-  });
-});
-
-// expose for console
-window.WF = {updateNow, fetchWorldState, ENDPOINTS};
+// keyboard shortcut to open settings: "s"
+document.addEventListener('keydown', e=>{ if(e.key==='s') { btnSettings.click(); } });
 
 </script>
 </body>
