@@ -5,17 +5,53 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Warframe Star Map</title>
 <style>
-body{margin:0;font-family:sans-serif;color:#eee;background:#0b0f13;overflow:hidden}
-header{padding:10px;background:rgba(15,20,30,0.7);backdrop-filter:blur(6px);display:flex;align-items:center}
-header h1{margin:0;font-size:16px;color:#0af}
-main{padding:10px;max-width:1200px;margin:auto}
-.panel{background:rgba(20,25,35,0.6);backdrop-filter:blur(8px);padding:12px;margin:10px 0;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
-canvas{display:block;width:100%;height:400px;border-radius:12px}
+body{
+  margin:0;
+  font-family:sans-serif;
+  color:#eee;
+  background:#0b0f13;
+  overflow-y:auto; /* разрешаем прокрутку */
+}
+
+/* --- Menu --- */
+header{
+  padding:12px 18px;
+  background:rgba(15,20,30,0.55);
+  backdrop-filter:blur(12px);
+  display:flex;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 4px 20px rgba(0,0,0,0.6);
+}
+header h1{margin:0;font-size:18px;color:#0af;}
+
+/* --- Content --- */
+main{padding:20px;max-width:1200px;margin:auto;}
+.panel{
+  background:rgba(20,25,35,0.45);
+  backdrop-filter:blur(10px);
+  padding:14px;
+  margin:12px 0;
+  border-radius:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+}
+
+/* --- Canvas --- */
+canvas{
+  display:block;
+  width:100%;
+  height:400px;
+  border-radius:14px;
+  margin-bottom:20px;
+}
 @media(max-width:600px){canvas{height:280px}}
 </style>
 </head>
 <body>
 <header><h1>Warframe Cycles — Star Map</h1></header>
+
 <main>
   <canvas id="star-map"></canvas>
   <div class="panel" id="cycles"></div>
@@ -24,14 +60,14 @@ canvas{display:block;width:100%;height:400px;border-radius:12px}
 <script>
 // ---------- CONFIG ----------
 const planets=[
-  {name:"Earth",color:"#6fe3ff",r:80,speed:0.0006},
-  {name:"Cetus",color:"#ffb347",r:120,speed:0.0005},
-  {name:"Vallis",color:"#9be8a8",r:160,speed:0.0004},
-  {name:"Cambion",color:"#ff6",r:200,speed:0.00035},
-  {name:"Duviri",color:"#d9a6ff",r:240,speed:0.0003},
-  {name:"Zariman",color:"#a6d0ff",r:280,speed:0.00025}
+  {name:"Earth",color:"#6fe3ff",r:80,speed:0.0006,size:10,glow:"#6fe3ff"},
+  {name:"Cetus",color:"#ffb347",r:120,speed:0.0005,size:12,glow:"#ffb347"},
+  {name:"Vallis",color:"#9be8a8",r:160,speed:0.0004,size:14,glow:"#9be8a8"},
+  {name:"Cambion",color:"#ff6",r:200,speed:0.00035,size:11,glow:"#ffee88"},
+  {name:"Duviri",color:"#d9a6ff",r:240,speed:0.0003,size:15,glow:"#d9a6ff"},
+  {name:"Zariman",color:"#a6d0ff",r:280,speed:0.00025,size:13,glow:"#a6d0ff"}
 ];
-const stars=Array.from({length:120},()=>({x:Math.random(),y:Math.random(),size:Math.random()*2}));
+const stars=Array.from({length:140},()=>({x:Math.random(),y:Math.random(),size:Math.random()*1.8}));
 
 // ---------- CANVAS ----------
 const canvas=document.getElementById("star-map");
@@ -46,57 +82,78 @@ document.addEventListener("mousemove",e=>{mouseX=e.clientX/W-0.5;mouseY=e.client
 // ---------- RENDER LOOP ----------
 function draw(){
   ctx.clearRect(0,0,W,H);
+
   // background gradient
   const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W/1.2);
-  g.addColorStop(0,"#0b0f13"); g.addColorStop(1,"#05060a");
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  g.addColorStop(0,"#0b0f13");
+  g.addColorStop(1,"#05060a");
+  ctx.fillStyle=g;
+  ctx.fillRect(0,0,W,H);
+
   // stars
-  ctx.fillStyle="white";
   stars.forEach(s=>{
-    const px=s.x*W + mouseX*30, py=s.y*H + mouseY*30;
-    ctx.globalAlpha=0.3+Math.random()*0.7;
+    const px=s.x*W + mouseX*40;
+    const py=s.y*H + mouseY*40;
+    ctx.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.8)+")";
     ctx.fillRect(px,py,s.size,s.size);
   });
-  ctx.globalAlpha=1;
 
   // sun
-  const sunGrad=ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,60);
-  sunGrad.addColorStop(0,"rgba(255,220,100,1)");
-  sunGrad.addColorStop(1,"rgba(255,180,0,0)");
+  const sunGrad=ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,70);
+  sunGrad.addColorStop(0,"rgba(255,230,150,1)");
+  sunGrad.addColorStop(0.6,"rgba(255,190,50,0.7)");
+  sunGrad.addColorStop(1,"rgba(255,150,0,0)");
   ctx.fillStyle=sunGrad;
-  ctx.beginPath();ctx.arc(W/2,H/2,60,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();
+  ctx.arc(W/2,H/2,70,0,Math.PI*2);
+  ctx.fill();
 
   // planets
   const t=Date.now();
   planets.forEach((p,i)=>{
     // orbit
-    ctx.strokeStyle="rgba(255,255,255,0.1)";
+    ctx.strokeStyle="rgba(255,255,255,0.08)";
     ctx.beginPath();ctx.arc(W/2,H/2,p.r,0,Math.PI*2);ctx.stroke();
+
     // planet pos
     const a=t*p.speed+i;
-    const x=W/2+Math.cos(a)*p.r+mouseX*20, y=H/2+Math.sin(a)*p.r+mouseY*20;
+    const x=W/2+Math.cos(a)*p.r+mouseX*20;
+    const y=H/2+Math.sin(a)*p.r+mouseY*20;
+
+    // glow
+    const glowGrad=ctx.createRadialGradient(x,y,0,x,y,p.size*3);
+    glowGrad.addColorStop(0,p.glow);
+    glowGrad.addColorStop(1,"transparent");
+    ctx.fillStyle=glowGrad;
+    ctx.beginPath();ctx.arc(x,y,p.size*3,0,Math.PI*2);ctx.fill();
+
+    // planet
     ctx.fillStyle=p.color;
-    ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,p.size,0,Math.PI*2);ctx.fill();
+
     // label
-    ctx.fillStyle="rgba(255,255,255,0.8)";
-    ctx.font="12px sans-serif";
-    ctx.fillText(p.name,x+14,y+4);
+    ctx.fillStyle="rgba(255,255,255,0.85)";
+    ctx.font="13px sans-serif";
+    ctx.fillText(p.name,x+p.size+6,y+4);
   });
+
   requestAnimationFrame(draw);
 }
 draw();
 
-// ---------- Cycles Example (autonomous) ----------
+// ---------- Cycles Example ----------
 const cyclesDef=[
-  {id:"earth",durDay:4*3600,durNight:4*3600},
-  {id:"cetus",durDay:100*60,durNight:50*60},
-  {id:"vallis",durDay:6*3600,durNight:6*3600},
-  {id:"cambion",durDay:90*60,durNight:90*60}
+  {id:"Earth",durDay:4*3600,durNight:4*3600},
+  {id:"Cetus",durDay:100*60,durNight:50*60},
+  {id:"Vallis",durDay:6*3600,durNight:6*3600},
+  {id:"Cambion",durDay:90*60,durNight:90*60}
 ];
 const anchor=new Date("2025-01-01T00:00:00Z").getTime();
 function fmt(sec){let m=Math.floor(sec/60),s=sec%60,h=Math.floor(m/60);m%=60;return (h?`${h}h `:"")+(m?`${m}m `:"")+s+"s";}
 function updateCycles(){
-  const now=Date.now();const wrap=document.getElementById("cycles");wrap.innerHTML="";
+  const now=Date.now();
+  const wrap=document.getElementById("cycles");
+  wrap.innerHTML="";
   cyclesDef.forEach(c=>{
     const period=c.durDay+c.durNight;
     const passed=((now-anchor)/1000)%period;
