@@ -89,3 +89,4 @@ setInterval(() => {
 fetchCycleData();
 // Обновлять данные с сервера каждые 2 минуты на всякий случай
 setInterval(fetchCycleData, 120000);
+
