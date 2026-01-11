@@ -1,92 +1,135 @@
-const API_URL = 'https://api.warframestat.us/pc';
+// СПИСОК ИСТОЧНИКОВ (Primary -> Backup -> Proxy)
+// Если первый не работает, скрипт пойдет ко второму и так далее.
+const API_SOURCES = [
+    'https://api.warframestat.us/pc', // Официальный API сообщества
+    'https://api.warframestat.us/pc/?language=en', // То же, но с явным языком (иногда помогает от кеша)
+    // Прокси через allorigins (обходит блокировки CORS и локальные глюки)
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.warframestat.us/pc')
+];
 
-// Функция для форматирования времени (hh:mm:ss)
+// Функция форматирования времени
 function formatTime(ms) {
     if (ms < 0) return "00:00:00";
     const seconds = Math.floor((ms / 1000) % 60);
     const minutes = Math.floor((ms / (1000 * 60)) % 60);
     const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
-
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-// Получение данных с API
+// Умная функция получения данных (перебирает источники)
 async function fetchCycleData() {
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        updateUI(data);
-    } catch (error) {
-        console.error('Error fetching Warframe data:', error);
+    let data = null;
+    let errorMsg = '';
+
+    // Проходим по списку источников по очереди
+    for (const source of API_SOURCES) {
+        try {
+            console.log(`Trying source: ${source}`);
+            const response = await fetch(source);
+            
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            
+            // Пробуем прочитать JSON
+            const text = await response.text();
+            if (!text) throw new Error('Empty response');
+            
+            data = JSON.parse(text);
+            
+            // Если мы здесь - значит все получилось, выходим из цикла
+            console.log('Data received successfully from:', source);
+            break; 
+        } catch (error) {
+            console.warn(`Failed to fetch from ${source}:`, error);
+            errorMsg = error.message;
+            // Цикл продолжится к следующему источнику
+        }
     }
+
+    if (data) {
+        updateUI(data);
+    } else {
+        console.error('All sources failed.');
+        showErrorState();
+    }
+}
+
+// Если все сломалось, пишем ошибку в интерфейс
+function showErrorState() {
+    const ids = ['earth', 'cetus', 'vallis', 'cambion', 'duviri'];
+    ids.forEach(id => {
+        const el = document.getElementById(`${id}-state`);
+        if(el) {
+            el.innerText = "OFFLINE";
+            el.style.color = "red";
+        }
+    });
 }
 
 // Обновление интерфейса
 function updateUI(data) {
-    // 1. Earth (Основная нода для растений)
+    // 1. Earth
     updateTimer('earth', data.earthCycle);
-
-    // 2. Cetus (Равнины Эйдолона - Ночь/День)
+    // 2. Cetus
     updateTimer('cetus', data.cetusCycle);
-
-    // 3. Orb Vallis (Венера)
+    // 3. Orb Vallis
     updateTimer('vallis', data.vallisCycle);
-
-    // 4. Cambion Drift (Деймос)
+    // 4. Cambion Drift
     updateTimer('cambion', data.cambionCycle);
 
-    // 5. Duviri (Парадокс)
-    // Duviri имеет немного другую структуру, проверяем её
+    // 5. Duviri (особая логика)
     if(data.duviriCycle) {
-        document.getElementById('duviri-state').innerText = data.duviriCycle.state.toUpperCase();
-        // Сохраняем дату окончания для таймера
-        document.getElementById('duviri-timer').dataset.expiry = data.duviriCycle.expiry;
+        const stateEl = document.getElementById('duviri-state');
+        const timerEl = document.getElementById('duviri-timer');
+        
+        stateEl.innerText = data.duviriCycle.state.toUpperCase();
+        stateEl.style.color = '#c5a966'; // Duviri gold
+        timerEl.dataset.expiry = data.duviriCycle.expiry;
     }
 }
 
-// Вспомогательная функция для обновления конкретного блока
+// Вспомогательная функция
 function updateTimer(id, cycleData) {
     const stateEl = document.getElementById(`${id}-state`);
     const timerEl = document.getElementById(`${id}-timer`);
 
-    if (cycleData) {
-        // Меняем текст (Day/Night/Warm/Cold)
-        // Для Земли и Цетуса важно показывать именно Day или Night
+    if (cycleData && stateEl && timerEl) {
         let stateText = cycleData.state ? cycleData.state.toUpperCase() : 'UNKNOWN';
         
-        // Визуальная подсветка (опционально)
-        if(stateText === 'NIGHT' || stateText === 'COLD' || stateText === 'FASS') {
-            stateEl.style.color = '#55aaff'; // Синий для ночи/холода
+        // Цвета
+        if(stateText.includes('NIGHT') || stateText === 'COLD' || stateText === 'FASS') {
+            stateEl.style.color = '#55aaff';
         } else {
-            stateEl.style.color = '#ffaa00'; // Оранжевый для дня/тепла
+            stateEl.style.color = '#ffaa00';
         }
 
         stateEl.innerText = stateText;
-        timerEl.dataset.expiry = cycleData.expiry; // Сохраняем время окончания в атрибут
+        timerEl.dataset.expiry = cycleData.expiry;
     }
 }
 
-// Живой таймер (запускается каждую секунду)
+// Тикающий таймер (работает локально, не требует запросов каждую секунду)
 setInterval(() => {
     const timerElements = document.querySelectorAll('[data-expiry]');
     
     timerElements.forEach(el => {
-        const expiryDate = new Date(el.dataset.expiry).getTime();
+        const expiryStr = el.dataset.expiry;
+        if (!expiryStr) return;
+
+        const expiryDate = new Date(expiryStr).getTime();
         const now = new Date().getTime();
         const diff = expiryDate - now;
 
-        // Если время вышло, обновляем данные с сервера
         if (diff <= 0) {
-            el.innerText = "REFRESHING...";
-            fetchCycleData(); // Перезапрос данных
+            el.innerText = "SYNC...";
+            // Не спамим запросами, если данные устарели, ждем следующего цикла обновления
         } else {
             el.innerText = formatTime(diff);
         }
     });
 }, 1000);
 
-// Первичный запуск
+// Запуск
 fetchCycleData();
-// Обновлять данные с сервера каждые 2 минуты на всякий случай
-setInterval(fetchCycleData, 120000);
 
+// Обновляем данные с сервера раз в 60 секунд
+setInterval(fetchCycleData, 60000);
