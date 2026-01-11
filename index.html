@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenno Clock | Warframe Cycle Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-overlay"></div>
+    
+    <div class="planet-container">
+        <div class="planet"></div>
+        <div class="orbit-ring"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Tenno Cycle Tracker</h1>
+        </header>
+
+        <main class="hero-section" id="earth-panel">
+            <h2 class="location-title">Earth System</h2>
+            <div class="cycle-icon" id="earth-icon"></div>
+            <div class="timer-display">
+                <div class="state" id="earth-state">Loading...</div>
+                <div class="countdown" id="earth-timer">--:--:--</div>
+            </div>
+            <div class="sub-info">Until state change</div>
+        </main>
+
+        <section class="grid-locations">
+            <div class="card">
+                <h3>Cetus (Eidolon)</h3>
+                <span class="status" id="cetus-state">...</span>
+                <span class="time" id="cetus-timer">--:--:--</span>
+            </div>
+
+            <div class="card">
+                <h3>Orb Vallis</h3>
+                <span class="status" id="vallis-state">...</span>
+                <span class="time" id="vallis-timer">--:--:--</span>
+            </div>
+
+            <div class="card">
+                <h3>Cambion Drift</h3>
+                <span class="status" id="cambion-state">...</span>
+                <span class="time" id="cambion-timer">--:--:--</span>
+            </div>
+
+            <div class="card">
+                <h3>Duviri</h3>
+                <span class="status" id="duviri-state">...</span>
+                <span class="time" id="duviri-timer">--:--:--</span>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
