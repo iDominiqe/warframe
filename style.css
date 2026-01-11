@@ -1,0 +1,178 @@
+:root {
+    --wf-dark: #0b0b0b;
+    --wf-panel: #141414;
+    --wf-gold: #c5a966;
+    --wf-blue: #55aaff;
+    --wf-text: #eeeeee;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Rajdhani', sans-serif;
+    background-color: var(--wf-dark);
+    color: var(--wf-text);
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Фон и Планета */
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+    z-index: -2;
+}
+
+.planet-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.planet {
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #444, #000);
+    box-shadow: 0 0 50px rgba(197, 169, 102, 0.1);
+    animation: pulsePlanet 10s infinite alternate;
+}
+
+.orbit-ring {
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    border: 1px solid rgba(197, 169, 102, 0.3);
+    border-radius: 50%;
+    animation: rotateRing 60s linear infinite;
+}
+
+/* Интерфейс */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    text-align: center;
+    padding-top: 50px;
+}
+
+h1 {
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--wf-gold);
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px rgba(197, 169, 102, 0.5);
+}
+
+/* Главный блок (Земля) */
+.hero-section {
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid var(--wf-gold);
+    padding: 40px;
+    border-radius: 4px;
+    margin-bottom: 40px;
+    position: relative;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.location-title {
+    font-size: 2rem;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--wf-blue);
+}
+
+.timer-display {
+    margin: 20px 0;
+}
+
+.state {
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.countdown {
+    font-size: 4rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--wf-gold);
+}
+
+.sub-info {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Сетка других локаций */
+.grid-locations {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 50px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-top: 2px solid var(--wf-blue);
+    border-radius: 4px;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.card h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: var(--wf-blue);
+}
+
+.card .status {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.card .time {
+    font-family: monospace;
+    font-size: 1.2rem;
+    color: var(--wf-gold);
+}
+
+/* Анимации */
+@keyframes rotateRing {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulsePlanet {
+    0% { box-shadow: 0 0 30px rgba(197, 169, 102, 0.1); }
+    100% { box-shadow: 0 0 60px rgba(197, 169, 102, 0.3); }
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 600px) {
+    .planet { width: 300px; height: 300px; }
+    .countdown { font-size: 2.5rem; }
+    .state { font-size: 2rem; }
+}
